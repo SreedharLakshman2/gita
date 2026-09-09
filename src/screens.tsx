@@ -162,19 +162,19 @@ export function Home() {
     <AppShell>
       <div className="page home">
         <header className="home-head">
-          <div>
+          <div className="home-copy">
             <p className="greet">
               Namaste <span aria-hidden>🙏</span>
             </p>
             <h1>Continue your journey</h1>
           </div>
           <button className="avatar-btn" type="button" onClick={() => go("profile")} aria-label="Profile">
-            <Lotus size={22} />
+            <Lotus size={20} />
           </button>
         </header>
 
         <button className="search-fake" type="button" onClick={() => go("search")}>
-          <span className="tab-icon">{Glyph.search}</span>
+          <span className="mark">{Glyph.search}</span>
           Search verses, chapters or keywords
         </button>
 
@@ -212,7 +212,7 @@ export function Home() {
               </span>
               <Progress value={18} />
             </div>
-            <span className="tab-icon">{Glyph.chevron}</span>
+            <span className="mark">{Glyph.chevron}</span>
           </button>
         </section>
 
@@ -220,22 +220,22 @@ export function Home() {
           <h2>Explore the Gita</h2>
           <div className="explore-grid">
             <button type="button" className="explore" onClick={() => go("chapters")}>
-              <MotifMark motif="lotus" />
+              <MotifMark motif="lotus" size={22} />
               <b>18 Chapters</b>
               <span>{TOTAL_VERSES} verses</span>
             </button>
             <button type="button" className="explore" onClick={() => go("daily")}>
-              <span className="tab-icon">{Glyph.sun}</span>
+              <span className="mark">{Glyph.sun}</span>
               <b>Daily Wisdom</b>
               <span>A verse each dawn</span>
             </button>
             <button type="button" className="explore" onClick={() => openVerse(2, 47, "audio")}>
-              <span className="tab-icon">{Glyph.headphones}</span>
+              <span className="mark">{Glyph.headphones}</span>
               <b>Audio</b>
               <span>Recitation</span>
             </button>
             <button type="button" className="explore" onClick={() => go("bookmarks")}>
-              <span className="tab-icon">{Glyph.bookmark}</span>
+              <span className="mark">{Glyph.bookmark}</span>
               <b>Bookmarks</b>
               <span>Your leaves</span>
             </button>
@@ -502,10 +502,13 @@ export function AudioReader() {
   const text = store.lang === "sa" ? v.iast : meaning(v, store.lang);
 
   useEffect(() => {
-    if (store.playing) speak(text, store.lang === "sa" ? "sa" : store.lang, store.speed, { chapter: v.chapter, verse: v.verse });
-    else stopSpeak();
+    if (store.playing) {
+      speak(text, store.lang === "sa" ? "sa" : store.lang, store.speed, { chapter: v.chapter, verse: v.verse }, () => {
+        store.setPlaying(false);
+      });
+    } else stopSpeak();
     return () => stopSpeak();
-  }, [store.playing, store.speed, text, store.lang, v.chapter, v.verse]);
+  }, [store.playing, store.speed, text, store.lang, v.chapter, v.verse, store.setPlaying]);
 
   const prev = prevVerse(v.chapter, v.verse);
   const next = nextVerse(v.chapter, v.verse);
@@ -519,7 +522,7 @@ export function AudioReader() {
           <div className="audio-stage-media">
             <SacredArt kind={chapterArt(v.chapter)} className="audio-stage-photo" alt="Krishna teaching Arjuna" />
             <div className="audio-veil" aria-hidden />
-            <DivineLottie name="lotus" className="audio-lotus" />
+            {store.playing ? <DivineLottie name="lotus" className="audio-lotus" /> : null}
           </div>
           <div className="reader-top audio-nav">
             <Back onClick={() => store.leaveAudio()} />
@@ -532,7 +535,7 @@ export function AudioReader() {
             <span className="spacer" />
           </div>
           <div className="audio-portrait">
-            <DivineLottie name="glow" className="lottie-audio" />
+            {store.playing ? <DivineLottie name="glow" className="lottie-audio" /> : null}
             <span className="portrait-ring" aria-hidden />
             <SacredArt kind="flute" className="audio-photo" alt="Krishna with flute" />
           </div>

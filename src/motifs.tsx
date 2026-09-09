@@ -77,7 +77,7 @@ export function BansuriMotif({ className, style }: MarkProps) {
 
 export function LotusMotif({ className, style }: MarkProps) {
   return (
-    <svg viewBox="0 0 64 64" className={`motif lotus-motif ${className ?? ""}`} style={style} aria-hidden>
+    <svg viewBox="-8 -6 80 80" className={`motif lotus-motif ${className ?? ""}`} style={style} aria-hidden>
       <g className="lotus-bloom">
         <path d="M32 56C16 46 10 32 16 18c10 8 14 18 16 38z" fill="#8a3544" stroke="#e8c96a" strokeWidth="1.2" />
         <path d="M32 56C48 46 54 32 48 18c-10 8-14 18-16 38z" fill="#8a3544" stroke="#e8c96a" strokeWidth="1.2" />

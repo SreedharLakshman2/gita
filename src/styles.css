@@ -417,6 +417,7 @@ p {
   background: linear-gradient(180deg, #f6e7b8, #d4b56a);
   box-shadow: 0 0 0 1px rgba(212, 181, 106, 0.55), 0 10px 18px rgba(28, 39, 64, 0.18);
   transform: translateY(-2px);
+  align-content: center;
 }
 
 .tab.on .tab-icon {
@@ -440,15 +441,15 @@ p {
 }
 
 .tab-icon.has-motif {
-  width: 38px;
-  height: 38px;
-  border-radius: 19px;
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
 }
 
 .tab-icon.has-motif svg,
 .tab-icon.has-motif .tab-motif {
-  width: 34px;
-  height: 34px;
+  width: 22px;
+  height: 22px;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
 }
 
@@ -489,7 +490,7 @@ p {
 
 .lotus-bloom {
   transform-box: view-box;
-  transform-origin: 50% 80%;
+  transform-origin: 50% 58%;
   animation: lotus-bloom 2.4s ease-in-out infinite;
 }
 
@@ -648,6 +649,11 @@ p {
   background: var(--navy);
   color: var(--gold-bright);
   border-color: var(--navy);
+}
+
+.lang-card.on b,
+.lang-card.on span {
+  color: var(--gold-bright);
 }
 
 .lang-row,
@@ -937,11 +943,25 @@ p {
   gap: 12px;
 }
 
+.home-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 12px;
+}
+
+.home-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
 .home-head h1,
 .inline-title {
   font-family: var(--serif);
   font-size: 26px;
   color: var(--navy);
+  line-height: 1.15;
 }
 
 .greet {
@@ -958,13 +978,45 @@ p {
   color: var(--gold);
   display: grid;
   place-items: center;
+  flex: none;
+  padding: 0;
+}
+
+.avatar-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  overflow: visible;
+}
+
+.tab-motif .lotus-bloom {
+  transform-origin: 50% 55%;
+}
+
+.explore {
+  overflow: visible;
+}
+
+.mark {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--gold);
+}
+
+.mark svg {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .search-fake,
 .search-box {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-height: 44px;
   padding: 0 14px;
   border-radius: 14px;
@@ -972,6 +1024,10 @@ p {
   border: 1px solid var(--line);
   color: var(--muted);
   width: 100%;
+}
+
+.search-fake .mark {
+  color: var(--muted);
 }
 
 .search-box input {
@@ -1123,6 +1179,12 @@ h2 {
   gap: 6px;
   min-height: 96px;
   color: var(--ink);
+}
+
+.explore .mark,
+.explore .motif {
+  width: 22px;
+  height: 22px;
 }
 
 .explore b,
@@ -1579,8 +1641,14 @@ h2 {
   border-radius: 14px;
   border: 1px solid var(--line);
   background: var(--card);
+  color: var(--ink);
   padding: 0 12px;
   box-shadow: var(--shadow);
+}
+
+.lang-select select option {
+  background: var(--card);
+  color: var(--ink);
 }
 
 .mini-list button {
@@ -1890,6 +1958,28 @@ html[data-theme="dark"] body {
 .app-shell[data-theme="dark"] .gold-btn {
   background: #d4b56a;
   color: #1c2740;
+}
+
+.app-shell[data-theme="dark"] .chip.on,
+.app-shell[data-theme="dark"] .lang-tabs button.on,
+.app-shell[data-theme="dark"] .seg button.on,
+.app-shell[data-theme="dark"] .speed-row button.on,
+.app-shell[data-theme="dark"] .mini-list button.on,
+.app-shell[data-theme="dark"] .lang-card.on {
+  background: #ead6a4;
+  color: #1c2740;
+  border-color: #d4b56a;
+}
+
+.app-shell[data-theme="dark"] .lang-card.on b,
+.app-shell[data-theme="dark"] .lang-card.on span {
+  color: #1c2740;
+}
+
+.app-shell[data-theme="dark"] .lang-select select,
+.app-shell[data-theme="dark"] .lang-select select option {
+  background: #1c2230;
+  color: #efe6d4;
 }
 
 .app-shell[data-theme="dark"] .sreeo-word {

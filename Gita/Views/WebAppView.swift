@@ -49,6 +49,10 @@ struct WebAppView: UIViewRepresentable {
         config.userContentController.add(context.coordinator, name: "sreeoNotify")
 
         let webView = GitaWebView(frame: .zero, configuration: config)
+        context.coordinator.webView = webView
+        DivineVoice.shared.onFinished = { [weak coordinator = context.coordinator] in
+            coordinator?.webView?.evaluateJavaScript("window.__gitaSpeechEnded && window.__gitaSpeechEnded()", completionHandler: nil)
+        }
         webView.navigationDelegate = context.coordinator
         webView.isOpaque = false
         webView.backgroundColor = UIColor(red: 18 / 255, green: 21 / 255, blue: 28 / 255, alpha: 1)
@@ -76,6 +80,8 @@ struct WebAppView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
     final class Coordinator: NSObject, WKURLSchemeHandler, WKNavigationDelegate, WKScriptMessageHandler {
+        weak var webView: WKWebView?
+
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "sreeoStopSpeak" {
                 DivineVoice.shared.stop()

@@ -10,7 +10,7 @@ type IconProps = {
 
 export function Lotus({ size = 48, className, style }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" className={className} style={style} aria-hidden>
+    <svg width={size} height={size} viewBox="4 4 56 56" fill="none" className={className} style={style} aria-hidden>
       <path
         d="M32 8c3 7.2 10 12 18 13-2.6 10.2-9.6 18.2-18 21.6C23.6 39.2 16.6 31.2 14 21 22 20 29 15.2 32 8z"
         stroke="currentColor"

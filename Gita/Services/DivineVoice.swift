@@ -1,16 +1,26 @@
 import AVFoundation
 import Foundation
 
-final class DivineVoice: NSObject, AVAudioPlayerDelegate {
+final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDelegate {
     static let shared = DivineVoice()
+
+    var onFinished: (() -> Void)?
 
     private let speaker = AVSpeechSynthesizer()
     private var clipPlayer: AVAudioPlayer?
     private var askedPersonalVoice = false
+    private var currentUtterance: AVSpeechUtterance?
+
+    private override init() {
+        super.init()
+        speaker.delegate = self
+    }
 
     func stop() {
+        currentUtterance = nil
         clipPlayer?.stop()
         clipPlayer = nil
+        utteranceId += 1
         if speaker.isSpeaking {
             speaker.stopSpeaking(at: .immediate)
         }
@@ -22,9 +32,11 @@ final class DivineVoice: NSObject, AVAudioPlayerDelegate {
         stop()
         activateSession()
         askPersonalVoiceOnce()
+        utteranceId += 1
+        let current = utteranceId
 
         if let chapter, let verse, let file = clipURL(chapter: chapter, verse: verse, lang: lang) {
-            playClip(file, rate: rate)
+            playClip(file, rate: rate, token: current)
             return
         }
 
@@ -34,16 +46,30 @@ final class DivineVoice: NSObject, AVAudioPlayerDelegate {
         utterance.rate = min(max(scaled, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
         utterance.pitchMultiplier = min(max(pitch, 0.5), 1.2)
         utterance.volume = 1
+        currentUtterance = utterance
         speaker.speak(utterance)
+    }
+
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        guard utterance === currentUtterance else { return }
+        currentUtterance = nil
+        notifyFinished()
     }
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if clipPlayer === player {
             clipPlayer = nil
+            notifyFinished()
         }
     }
 
-    private func playClip(_ url: URL, rate: Float) {
+    private func notifyFinished() {
+        DispatchQueue.main.async { [weak self] in
+            self?.onFinished?()
+        }
+    }
+
+    private func playClip(_ url: URL, rate: Float, token: Int) {
         do {
             let player = try AVAudioPlayer(contentsOf: url)
             player.delegate = self
@@ -54,6 +80,9 @@ final class DivineVoice: NSObject, AVAudioPlayerDelegate {
             clipPlayer = player
         } catch {
             clipPlayer = nil
+            if token == utteranceId {
+                notifyFinished()
+            }
         }
     }
 

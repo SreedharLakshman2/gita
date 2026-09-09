@@ -348,8 +348,8 @@ export function langLabel(id: LangId) {
   return LANGUAGES.find((l) => l.id === id)?.native ?? id;
 }
 
-export function speak(text: string, lang: LangId, rate: number, ref?: { chapter: number; verse: number }) {
-  speakDivine(text, lang, rate, ref);
+export function speak(text: string, lang: LangId, rate: number, ref?: { chapter: number; verse: number }, onEnd?: () => void) {
+  speakDivine(text, lang, rate, ref, onEnd);
 }
 
 export function stopSpeak() {

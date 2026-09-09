@@ -72,13 +72,6 @@ function clipUrl(chapter?: number, verse?: number, lang?: LangId): string | unde
   return undefined;
 }
 
-function playClip(src: string, rate: number) {
-  stopClip();
-  clipPlayer = new Audio(src);
-  clipPlayer.playbackRate = Math.max(0.7, Math.min(1.5, rate));
-  void clipPlayer.play();
-}
-
 function stopClip() {
   if (!clipPlayer) return;
   clipPlayer.pause();
@@ -86,14 +79,42 @@ function stopClip() {
   clipPlayer = null;
 }
 
+let speakGen = 0;
+let activeGen = 0;
+let onSpeechEnd: (() => void) | null = null;
+
+function finishSpeech(gen: number) {
+  if (gen !== speakGen) return;
+  const done = onSpeechEnd;
+  onSpeechEnd = null;
+  done?.();
+}
+
+function playClip(src: string, rate: number, gen: number) {
+  stopClip();
+  clipPlayer = new Audio(src);
+  clipPlayer.playbackRate = Math.max(0.7, Math.min(1.5, rate));
+  clipPlayer.onended = () => finishSpeech(gen);
+  clipPlayer.onerror = () => finishSpeech(gen);
+  void clipPlayer.play();
+}
+
 export function speakDivine(
   text: string,
   lang: LangId,
   rate: number,
-  ref?: { chapter: number; verse: number }
+  ref?: { chapter: number; verse: number },
+  onEnd?: () => void
 ) {
   const spoken = text.replace(/\n/g, " ").trim();
-  if (!spoken) return;
+  if (!spoken) {
+    onEnd?.();
+    return;
+  }
+  speakGen += 1;
+  const gen = speakGen;
+  activeGen = gen;
+  onSpeechEnd = onEnd ?? null;
   const voiceLang = LANGUAGES.find((item) => item.id === lang)?.speech ?? "en-IN";
   const nativeHandler = typeof window !== "undefined" ? window.webkit?.messageHandlers?.sreeoSpeak : undefined;
   if (nativeHandler) {
@@ -111,10 +132,13 @@ export function speakDivine(
   const custom = clipUrl(ref?.chapter, ref?.verse, lang);
   if (custom) {
     if (typeof window !== "undefined") window.speechSynthesis?.cancel();
-    playClip(custom, rate);
+    playClip(custom, rate, gen);
     return;
   }
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
+  if (typeof window === "undefined" || !window.speechSynthesis) {
+    finishSpeech(gen);
+    return;
+  }
   stopClip();
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(spoken);
@@ -123,10 +147,14 @@ export function speakDivine(
   utter.pitch = 0.78;
   const chosen = pickMaleVoice(voiceLang);
   if (chosen) utter.voice = chosen;
+  utter.onend = () => finishSpeech(gen);
+  utter.onerror = () => finishSpeech(gen);
   window.speechSynthesis.speak(utter);
 }
 
 export function stopDivine() {
+  speakGen += 1;
+  onSpeechEnd = null;
   stopClip();
   const nativeStop = typeof window !== "undefined" ? window.webkit?.messageHandlers?.sreeoStopSpeak : undefined;
   if (nativeStop) {
@@ -137,9 +165,22 @@ export function stopDivine() {
   window.speechSynthesis.cancel();
 }
 
+function bindSpeechEnded() {
+  if (typeof window === "undefined") return;
+  window.__gitaSpeechEnded = () => finishSpeech(activeGen);
+}
+
+bindSpeechEnded();
+
 if (typeof window !== "undefined" && window.speechSynthesis) {
   window.speechSynthesis.getVoices();
   window.speechSynthesis.onvoiceschanged = () => {
     window.speechSynthesis.getVoices();
   };
+}
+
+declare global {
+  interface Window {
+    __gitaSpeechEnded?: () => void;
+  }
 }
