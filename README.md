@@ -24,6 +24,20 @@ npm run dev
 
 Open the design board on a wide window. Tap any phone to enter the live prototype. On a phone-sized window the app opens full screen.
 
+## Run on iPhone with Xcode
+
+```bash
+npm install
+npm run ios:sync
+open Gita.xcodeproj
+```
+
+In Xcode: choose your iPhone (or a simulator) in the device menu, then press **Run** (⌘R). The first time, trust the developer certificate on the phone under **Settings → General → VPN & Device Management**.
+
+Rebuild the web UI into the iOS app after UI changes with `npm run ios:sync`, then Run again in Xcode.
+
+Bundle ID: `com.sreeo.gita` · Team: Sai Laksha Technologies.
+
 ## Sanskrit and meaning
 
 Devanagari verses follow the traditional recension. English, Tamil, Hindi, and other meanings are original renderings for this app, written for quiet reading rather than as a scholarly edition.

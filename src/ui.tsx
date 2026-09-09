@@ -51,6 +51,7 @@ export function BottomNav() {
           className={`tab ${tab === item.id ? "on" : ""}`}
           onClick={() => setTab(item.id)}
           type="button"
+          aria-current={tab === item.id ? "page" : undefined}
         >
           <span className="tab-icon">{item.icon}</span>
           <span>{item.label}</span>

@@ -1,0 +1,326 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		GTBF00010000000000000000 /* GitaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00010000000000000000 /* GitaApp.swift */; };
+		GTBF00020000000000000000 /* Brand.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00020000000000000000 /* Brand.swift */; };
+		GTBF00030000000000000000 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00030000000000000000 /* RootView.swift */; };
+		GTBF00040000000000000000 /* LaunchSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00040000000000000000 /* LaunchSplashView.swift */; };
+		GTBF00050000000000000000 /* WebAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00050000000000000000 /* WebAppView.swift */; };
+		GTBF00060000000000000000 /* DivineVoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00060000000000000000 /* DivineVoice.swift */; };
+		GTBF00070000000000000000 /* VerseNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00070000000000000000 /* VerseNotifications.swift */; };
+		GTBF02000000000000000000 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = GTFR02000000000000000000 /* Assets.xcassets */; };
+		GTBF02010000000000000000 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = GTFR02010000000000000000 /* PrivacyInfo.xcprivacy */; };
+		GTBF03000000000000000000 /* www in Resources */ = {isa = PBXBuildFile; fileRef = GTFR03000000000000000000 /* www */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		GTFR00010000000000000000 /* GitaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitaApp.swift; sourceTree = "<group>"; };
+		GTFR00020000000000000000 /* Brand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Brand.swift; sourceTree = "<group>"; };
+		GTFR00030000000000000000 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		GTFR00040000000000000000 /* LaunchSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSplashView.swift; sourceTree = "<group>"; };
+		GTFR00050000000000000000 /* WebAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppView.swift; sourceTree = "<group>"; };
+		GTFR00060000000000000000 /* DivineVoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DivineVoice.swift; sourceTree = "<group>"; };
+		GTFR00070000000000000000 /* VerseNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseNotifications.swift; sourceTree = "<group>"; };
+		GTFR02000000000000000000 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		GTFR02010000000000000000 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		GTFR02020000000000000000 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		GTFR02030000000000000000 /* Gita.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gita.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		GTFR03000000000000000000 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		GTBFP0000000000000000000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		GTGRP0000000000000000000 = {
+			isa = PBXGroup;
+			children = (
+				GTGRP0000000000000000002 /* Gita */,
+				GTGRP0000000000000000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		GTGRP0000000000000000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				GTFR02030000000000000000 /* Gita.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		GTGRP0000000000000000002 /* Gita */ = {
+			isa = PBXGroup;
+			children = (
+				GTGRP0000000000000000003 /* App */,
+				GTGRP0000000000000000006 /* Services */,
+				GTGRP0000000000000000005 /* Views */,
+				GTFR00010000000000000000 /* GitaApp.swift */,
+				GTFR02000000000000000000 /* Assets.xcassets */,
+				GTFR02020000000000000000 /* Info.plist */,
+				GTFR02010000000000000000 /* PrivacyInfo.xcprivacy */,
+				GTFR03000000000000000000 /* www */,
+			);
+			path = Gita;
+			sourceTree = "<group>";
+		};
+		GTGRP0000000000000000003 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				GTFR00020000000000000000 /* Brand.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		GTGRP0000000000000000005 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				GTFR00030000000000000000 /* RootView.swift */,
+				GTFR00040000000000000000 /* LaunchSplashView.swift */,
+				GTFR00050000000000000000 /* WebAppView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		GTGRP0000000000000000006 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				GTFR00060000000000000000 /* DivineVoice.swift */,
+				GTFR00070000000000000000 /* VerseNotifications.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		GTTGT0000000000000000000 /* Gita */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = GTCLT0000000000000000000 /* Build configuration list for PBXNativeTarget "Gita" */;
+			buildPhases = (
+				GTBPS0000000000000000000 /* Sources */,
+				GTBFP0000000000000000000 /* Frameworks */,
+				GTBPR0000000000000000000 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Gita;
+			productName = Gita;
+			productReference = GTFR02030000000000000000 /* Gita.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		GTPRJ0000000000000000000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					GTTGT0000000000000000000 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = GTCLP0000000000000000000 /* Build configuration list for PBXProject "Gita" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = GTGRP0000000000000000000;
+			productRefGroup = GTGRP0000000000000000001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				GTTGT0000000000000000000 /* Gita */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		GTBPR0000000000000000000 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				GTBF02000000000000000000 /* Assets.xcassets in Resources */,
+				GTBF02010000000000000000 /* PrivacyInfo.xcprivacy in Resources */,
+				GTBF03000000000000000000 /* www in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		GTBPS0000000000000000000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				GTBF00010000000000000000 /* GitaApp.swift in Sources */,
+				GTBF00020000000000000000 /* Brand.swift in Sources */,
+				GTBF00030000000000000000 /* RootView.swift in Sources */,
+				GTBF00040000000000000000 /* LaunchSplashView.swift in Sources */,
+				GTBF00050000000000000000 /* WebAppView.swift in Sources */,
+				GTBF00060000000000000000 /* DivineVoice.swift in Sources */,
+				GTBF00070000000000000000 /* VerseNotifications.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		GTCFP0D00000000000000000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 7DS2M392U2;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		GTCFP0R00000000000000000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 7DS2M392U2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		GTCFT0D00000000000000000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7DS2M392U2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Gita/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Gita;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sreeo.gita;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		GTCFT0R00000000000000000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7DS2M392U2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Gita/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Gita;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sreeo.gita;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		GTCLP0000000000000000000 /* Build configuration list for PBXProject "Gita" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				GTCFP0D00000000000000000 /* Debug */,
+				GTCFP0R00000000000000000 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		GTCLT0000000000000000000 /* Build configuration list for PBXNativeTarget "Gita" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				GTCFT0D00000000000000000 /* Debug */,
+				GTCFT0R00000000000000000 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = GTPRJ0000000000000000000 /* Project object */;
+}

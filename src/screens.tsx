@@ -1,27 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Brand, LANGUAGES, READER_TABS, type LangId } from "./brand";
 import {
   CHAPTERS,
   CONTINUE_KEY,
   SEARCH_CHIPS,
-  VERSES,
+  TOTAL_VERSES,
   chapterByNumber,
   meaning,
   nextVerse,
   prevVerse,
+  searchVerses,
   verseAt,
   versesForChapter,
 } from "./data";
-import {
-  ChariotScene,
-  FluteKrishna,
-  Glyph,
-  GoldRule,
-  Lotus,
-  MotifMark,
-  OmMark,
-  SreeoTiles,
-} from "./icons";
+import { DivineLottie, SacredArt, chapterArt } from "./art";
+import { Glyph, GoldRule, Lotus, MotifMark, OmMark, SreeoTiles } from "./icons";
+import { isNative } from "./native";
 import { langLabel, speak, stopSpeak, useStore } from "./store";
 import { AppShell, Back, GoldBtn, IconBtn, Pad, Progress, StudioMark } from "./ui";
 
@@ -54,6 +48,10 @@ export function ActiveScreen() {
       return <SearchScreen />;
     case "profile":
       return <Profile />;
+    case "about":
+      return <AboutScreen />;
+    case "privacy":
+      return <PrivacyScreen />;
     default:
       return <Home />;
   }
@@ -61,10 +59,17 @@ export function ActiveScreen() {
 
 export function SreeoSplash() {
   const { go } = useStore();
+  const native = isNative();
   useEffect(() => {
+    if (native) {
+      go("splash");
+      return;
+    }
     const t = window.setTimeout(() => go("splash"), 2200);
     return () => window.clearTimeout(t);
-  }, [go]);
+  }, [go, native]);
+
+  if (native) return null;
 
   return (
     <AppShell nav={false} parchment>
@@ -95,10 +100,13 @@ export function GitaSplash() {
 
   return (
     <AppShell nav={false} parchment>
-      <button className="splash gita-splash" type="button" onClick={() => go("onboard")} aria-label="Begin">
+      <button className="splash gita-splash" type="button" onClick={() => go(onboarded ? "home" : "onboard")} aria-label="Begin">
         <div className="grain" aria-hidden />
         <div className="splash-center">
-          <Lotus size={72} className="gold-icon" />
+          <div className="lottie-halo">
+            <DivineLottie name="lotus" className="lottie-lotus" />
+            <Lotus size={72} className="gold-icon splash-lotus" />
+          </div>
           <OmMark size={108} className="om-mark" />
           <h1 className="display">{Brand.full}</h1>
           <GoldRule className="rule" />
@@ -119,8 +127,9 @@ export function Onboarding() {
     <AppShell nav={false} parchment>
       <div className="page onboard">
         <div className="onboard-art">
-          <ChariotScene className="chariot" />
-          <div className="art-caption">Kurukshetra · a quiet hour before the teaching</div>
+          <SacredArt kind="chariot" className="hero-photo" alt="Krishna teaching Arjuna on the chariot" />
+          <DivineLottie name="glow" className="art-glow" />
+          <div className="art-caption">Kurukshetra · Krishna teaching Arjuna</div>
         </div>
         <h1 className="display sm">Discover the Wisdom of the Gita</h1>
         <p className="lede">Read, listen and reflect on the timeless teachings of Lord Krishna.</p>
@@ -171,6 +180,7 @@ export function Home() {
         </button>
 
         <article className="daily-card">
+          <SacredArt kind="chariot" className="card-photo" alt="" />
           <button type="button" className="card-hit" onClick={() => go("daily")}>
             <div className="card-kicker">Daily Verse</div>
             <div className="card-meta">
@@ -213,7 +223,7 @@ export function Home() {
             <button type="button" className="explore" onClick={() => go("chapters")}>
               <MotifMark motif="lotus" />
               <b>18 Chapters</b>
-              <span>700 verses</span>
+              <span>{TOTAL_VERSES} verses</span>
             </button>
             <button type="button" className="explore" onClick={() => go("daily")}>
               <span className="tab-icon">{Glyph.sun}</span>
@@ -244,7 +254,7 @@ export function Chapters() {
       <div className="page">
         <header className="page-head">
           <h1 className="display sm">{Brand.full}</h1>
-          <p className="kicker">18 Chapters · 700 Verses</p>
+          <p className="kicker">18 Chapters · {TOTAL_VERSES} Verses</p>
           <GoldRule className="rule left" />
         </header>
         <div className="shelf">
@@ -282,6 +292,7 @@ export function ChapterDetail() {
           <span className="spacer" />
         </div>
         <div className="chapter-hero" style={{ background: ch.accent }}>
+          <SacredArt kind={chapterArt(ch.number)} className="hero-photo dim" alt="" />
           <MotifMark motif={ch.motif} size={36} />
           <p className="kicker light">Chapter {ch.number}</p>
           <h1 className="display sm light">{ch.saTitle}</h1>
@@ -319,8 +330,10 @@ export function VerseReader() {
   const v = store.currentVerse;
   const ch = chapterByNumber(v.chapter);
   const tab = store.readerLang;
-  const body =
-    tab === "sa" ? v.sa : tab === "en" ? v.en : tab === "ta" ? v.ta : tab === "hi" ? v.hi : meaning(v, tab);
+  const body = meaning(v, tab);
+  const extraTabs = READER_TABS.some((t) => t.id === store.lang)
+    ? READER_TABS
+    : [...READER_TABS, { id: store.lang, label: langLabel(store.lang) }];
   const prev = prevVerse(v.chapter, v.verse);
   const next = nextVerse(v.chapter, v.verse);
 
@@ -340,7 +353,7 @@ export function VerseReader() {
           </IconBtn>
         </div>
         <div className="lang-tabs">
-          {READER_TABS.map((t) => (
+          {extraTabs.map((t) => (
             <button
               key={t.id}
               type="button"
@@ -360,8 +373,18 @@ export function VerseReader() {
               <p className="iast">{v.iast}</p>
               <h3>English Meaning</h3>
               <p className="meaning">{v.en}</p>
-              <h3>Tamil Meaning</h3>
-              <p className="meaning ta">{v.ta}</p>
+              {v.ta ? (
+                <>
+                  <h3>Tamil Meaning</h3>
+                  <p className="meaning ta">{v.ta}</p>
+                </>
+              ) : null}
+              {v.hi ? (
+                <>
+                  <h3>Hindi Meaning</h3>
+                  <p className="meaning deva">{v.hi}</p>
+                </>
+              ) : null}
             </>
           ) : (
             <p className={`meaning hero-mean ${tab === "ta" ? "ta" : ""} ${tab === "hi" ? "deva" : ""}`}>
@@ -436,6 +459,10 @@ export function DailyVerse() {
     <AppShell>
       <div className="page daily">
         <div className="sunrise" aria-hidden />
+        <div className="daily-hero">
+          <SacredArt kind="chariot" className="hero-photo" alt="Krishna teaching Arjuna" />
+          <DivineLottie name="glow" className="art-glow" />
+        </div>
         <p className="kicker">Today’s Wisdom</p>
         <h1 className="display sm">A verse for this hour</h1>
         <article className="wisdom-card">
@@ -492,7 +519,8 @@ export function AudioReader() {
           <span className="spacer" />
         </div>
         <div className="audio-art">
-          <FluteKrishna size={168} className="gold-icon" />
+          <DivineLottie name="glow" className="lottie-audio" />
+          <SacredArt kind="flute" className="audio-photo" alt="Krishna with flute" />
         </div>
         <h1 className="display sm center">{ch.enTitle}</h1>
         <p className="center muted">
@@ -597,18 +625,18 @@ export function Bookmarks() {
                     <div className="card-meta">
                       Chapter {b.chapter} · Verse {b.verse}
                     </div>
-                    <p>{found.en}</p>
+                    <p>{meaning(found, store.lang === "sa" ? "en" : store.lang)}</p>
                     <div className="saved-meta">
                       <span>{langLabel(store.lang)}</span>
                       <span>{b.savedAt}</span>
                     </div>
                   </button>
-                  <div className="swipe-actions">
+                  <div className="saved-actions">
                     <button type="button" onClick={() => store.toggleBookmark(b.chapter, b.verse)}>
-                      Delete
+                      Remove
                     </button>
-                    <button type="button" className="share" onClick={() => store.openVerse(b.chapter, b.verse, "audio")}>
-                      Share
+                    <button type="button" className="listen" onClick={() => store.openVerse(b.chapter, b.verse, "audio")}>
+                      Listen
                     </button>
                   </div>
                 </article>
@@ -622,28 +650,16 @@ export function Bookmarks() {
 }
 
 export function SearchScreen() {
-  const { search, setSearch, openVerse, openChapter, go } = useStore();
-  const q = search.trim().toLowerCase();
-  const hits = useMemo(() => {
-    if (!q) return [];
-    return VERSES.filter(
-        (v) =>
-          v.en.toLowerCase().includes(q) ||
-          v.iast.toLowerCase().includes(q) ||
-          v.sa.includes(search) ||
-          v.ta.includes(search) ||
-          v.hi.includes(search) ||
-          `chapter ${v.chapter}`.includes(q) ||
-          String(v.verse).includes(q)
-      )
-      .slice(0, 12);
-  }, [q, search]);
+  const { search, setSearch, openVerse, openChapter, go, lang } = useStore();
+  const q = search.trim();
+  const hits = useMemo(() => searchVerses(search), [search]);
 
+  const needle = q.toLowerCase();
   const chapterHits = q
     ? CHAPTERS.filter(
         (c) =>
-          c.en.toLowerCase().includes(q) ||
-          c.saTitle.toLowerCase().includes(q) ||
+          c.en.toLowerCase().includes(needle) ||
+          c.saTitle.toLowerCase().includes(needle) ||
           c.sa.includes(search) ||
           String(c.number) === q
       )
@@ -692,7 +708,7 @@ export function SearchScreen() {
               {v.chapter}.{v.verse}
             </span>
             <span className="vpreview">
-              {v.en} · {langLabel("en")}
+              {meaning(v, lang === "sa" ? "en" : lang)}
             </span>
           </button>
         ))}
@@ -754,14 +770,94 @@ export function Profile() {
           <button type="button">
             Download content <span>{store.download ? "On" : "On device"}</span>
           </button>
-          <a className="setting-link" href="./privacy.html">
+          <a className="setting-link" href={Brand.support} target="_blank" rel="noreferrer">
+            Support
+          </a>
+          <button type="button" onClick={() => store.go("about")}>
             About Bhagavad Gita
-          </a>
-          <a className="setting-link" href="./privacy.html">
+          </button>
+          <button type="button" onClick={() => store.go("privacy")}>
             Privacy
-          </a>
+          </button>
         </div>
       </div>
     </AppShell>
+  );
+}
+
+function InfoPage({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  const { go } = useStore();
+  return (
+    <AppShell nav={false} parchment>
+      <div className="page info-page">
+        <div className="reader-top">
+          <Back onClick={() => go("profile")} />
+          <h1 className="inline-title">{title}</h1>
+          <span className="spacer" />
+        </div>
+        <SacredArt kind="chariot" className="info-photo" alt="Krishna teaching Arjuna" />
+        {children}
+      </div>
+    </AppShell>
+  );
+}
+
+export function AboutScreen() {
+  return (
+    <InfoPage title="About">
+      <h1 className="display sm">Bhagavad Gita</h1>
+      <p className="lede">
+        The Song of the Lord — a dialogue of dharma on the field of Kurukshetra, kept here as a quiet manuscript on
+        your device.
+      </p>
+      <p>
+        Gita is a reading app from {Brand.company} · {Brand.studioFull}. Sanskrit, meaning, and a Krishna-like male
+        recitation stay on this device. Bookmarks and progress are not sent to a cloud library.
+      </p>
+      <p>
+        Recitation uses the speech voices already on your device, preferring a calm male Indian voice. Audio is never
+        uploaded.
+      </p>
+      <a className="text-link" href={Brand.support} target="_blank" rel="noreferrer">
+        Support
+      </a>
+    </InfoPage>
+  );
+}
+
+export function PrivacyScreen() {
+  return (
+    <InfoPage title="Privacy">
+      <h1 className="display sm">Privacy Policy</h1>
+      <p className="meta-line">Last updated: 9 September 2026</p>
+      <p>
+        Reading language, bookmarks, and progress stay on your device. There is no account and no cloud library in this
+        version.
+      </p>
+      <h2>On this device</h2>
+      <ul>
+        <li>Selected language, text size, and appearance</li>
+        <li>Bookmarks, favorites, and continue-reading position</li>
+        <li>A local reading streak and verse history</li>
+        <li>A morning verse reminder, if you turn notifications on</li>
+      </ul>
+      <p>This data is not sent to {Brand.company}.</p>
+      <h2>Audio</h2>
+      <p>Recitation uses on-device speech. Audio is not uploaded. You can stop playback at any time.</p>
+      <h2>Notifications</h2>
+      <p>Reminders are scheduled on this device only. You can turn them off in Profile.</p>
+      <a className="text-link" href={Brand.privacy} target="_blank" rel="noreferrer">
+        Full privacy policy
+      </a>
+      <a className="text-link" href={Brand.support} target="_blank" rel="noreferrer">
+        Support
+      </a>
+    </InfoPage>
   );
 }

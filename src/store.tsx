@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Brand, LANGUAGES, type LangId } from "./brand";
-import { CONTINUE_KEY, DAILY_KEY, VERSES, verseAt, type Verse } from "./data";
+import { CONTINUE_KEY, DAILY_KEY, VERSES, verseAt, verseOfTheDay, type Verse } from "./data";
+import { isNative } from "./native";
+import { syncVerseReminder } from "./notify";
+import { speakDivine, stopDivine } from "./voice";
 
 export type ScreenId =
   | "sreeo"
@@ -15,7 +18,9 @@ export type ScreenId =
   | "audio"
   | "bookmarks"
   | "search"
-  | "profile";
+  | "profile"
+  | "about"
+  | "privacy";
 
 export type TabId = "home" | "gita" | "daily" | "bookmarks" | "profile";
 
@@ -108,7 +113,7 @@ export function StoreProvider({
   const saved = useMemo(() => load(), []);
   const start = freeze ?? initial ?? {};
   const locked = Boolean(freeze);
-  const [screen, setScreen] = useState<ScreenId>(start.screen ?? "sreeo");
+  const [screen, setScreen] = useState<ScreenId>(start.screen ?? (isNative() ? "splash" : "sreeo"));
   const [tab, setTabState] = useState<TabId>(start.tab ?? "home");
   const [lang, setLangState] = useState<LangId>(start.lang ?? saved.lang ?? "en");
   const [dark, setDarkState] = useState(start.dark ?? saved.dark ?? false);
@@ -211,8 +216,13 @@ export function StoreProvider({
     });
   };
 
+  useEffect(() => {
+    if (locked) return;
+    void syncVerseReminder(notify, lang);
+  }, [notify, lang, locked]);
+
   const currentVerse = verseAt(chapter, verse) ?? verseAt(DAILY_KEY.chapter, DAILY_KEY.verse)!;
-  const dailyVerse = verseAt(DAILY_KEY.chapter, DAILY_KEY.verse)!;
+  const dailyVerse = verseOfTheDay();
   const continueVerse = verseAt(CONTINUE_KEY.chapter, CONTINUE_KEY.verse)!;
 
   const value: Store = {
@@ -284,19 +294,11 @@ export function langLabel(id: LangId) {
 }
 
 export function speak(text: string, lang: LangId, rate: number) {
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const voiceLang = LANGUAGES.find((l) => l.id === lang)?.speech ?? "en-IN";
-  const u = new SpeechSynthesisUtterance(text.replace(/\n/g, " "));
-  u.lang = voiceLang;
-  u.rate = rate;
-  u.pitch = 0.95;
-  window.speechSynthesis.speak(u);
+  speakDivine(text, lang, rate);
 }
 
 export function stopSpeak() {
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
+  stopDivine();
 }
 
 export { Brand };
