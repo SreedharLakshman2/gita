@@ -1,0 +1,17 @@
+{
+  "name": "Gita — Bhagavad Gita",
+  "short_name": "Gita",
+  "description": "Timeless wisdom of the Bhagavad Gita. Read, listen and reflect.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F3EBDA",
+  "theme_color": "#1C2740",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
