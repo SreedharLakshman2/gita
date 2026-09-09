@@ -7,8 +7,10 @@
 		<key>UIColorName</key>
 		<string>LaunchBackground</string>
 	</dict>
+	<key>NSPersonalVoiceUsageDescription</key>
+	<string>Gita can recite verses in a voice you create on this iPhone. The voice stays on your device.</string>
 	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleDarkContent</string>
+	<string>UIStatusBarStyleLightContent</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>

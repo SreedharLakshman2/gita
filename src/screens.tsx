@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Brand, LANGUAGES, READER_TABS, type LangId } from "./brand";
 import {
   CHAPTERS,
-  CONTINUE_KEY,
   SEARCH_CHIPS,
   TOTAL_VERSES,
   chapterByNumber,
@@ -13,7 +12,7 @@ import {
   verseAt,
   versesForChapter,
 } from "./data";
-import { DivineLottie, SacredArt, chapterArt } from "./art";
+import { DivineLottie, SacredArt, SacredMark, chapterArt } from "./art";
 import { Glyph, GoldRule, Lotus, MotifMark, OmMark, SreeoTiles } from "./icons";
 import { isNative } from "./native";
 import { langLabel, speak, stopSpeak, useStore } from "./store";
@@ -206,10 +205,10 @@ export function Home() {
             <div className="book-spine" />
             <div className="continue-copy">
               <strong>
-                Chapter {CONTINUE_KEY.chapter}
+                Chapter {continueVerse.chapter}
               </strong>
               <span>
-                {chapterByNumber(2).saTitle} · Verse {CONTINUE_KEY.verse}
+                {chapterByNumber(continueVerse.chapter).saTitle} · Verse {continueVerse.verse}
               </span>
               <Progress value={18} />
             </div>
@@ -280,7 +279,7 @@ export function Chapters() {
 }
 
 export function ChapterDetail() {
-  const { chapter, openVerse, go } = useStore();
+  const { chapter, openVerse, go, lang } = useStore();
   const ch = chapterByNumber(chapter);
   const list = versesForChapter(ch.number);
   return (
@@ -315,7 +314,7 @@ export function ChapterDetail() {
               <span className="vno">
                 {v.chapter}.{v.verse}
               </span>
-              <span className="vpreview">{v.en}</span>
+              <span className="vpreview">{meaning(v, lang === "sa" ? "en" : lang)}</span>
               <span className="tab-icon">{Glyph.chevron}</span>
             </button>
           ))}
@@ -339,9 +338,9 @@ export function VerseReader() {
 
   return (
     <AppShell nav={false} parchment>
-      <div className="page reader" style={{ fontSize: `${store.textScale}em` }}>
+      <div className="page reader">
         <div className="reader-top">
-          <Back onClick={() => store.go("chapter")} />
+          <Back onClick={() => store.leaveReader()} />
           <div className="center-meta">
             <span>
               Chapter {v.chapter} · Verse {v.verse}
@@ -360,6 +359,12 @@ export function VerseReader() {
               className={tab === t.id ? "on" : ""}
               onClick={() => store.setReaderLang(t.id)}
             >
+              {tab === t.id ? (
+                <SacredMark
+                  name={t.id === "ta" ? "peacock" : t.id === "sa" ? "lotus" : "flute"}
+                  className="lang-tab-lottie"
+                />
+              ) : null}
               {t.label}
             </button>
           ))}
@@ -497,7 +502,7 @@ export function AudioReader() {
   const text = store.lang === "sa" ? v.iast : meaning(v, store.lang);
 
   useEffect(() => {
-    if (store.playing) speak(text, store.lang === "sa" ? "sa" : store.lang, store.speed);
+    if (store.playing) speak(text, store.lang === "sa" ? "sa" : store.lang, store.speed, { chapter: v.chapter, verse: v.verse });
     else stopSpeak();
     return () => stopSpeak();
   }, [store.playing, store.speed, text, store.lang, v.chapter, v.verse]);
@@ -505,77 +510,95 @@ export function AudioReader() {
   const prev = prevVerse(v.chapter, v.verse);
   const next = nextVerse(v.chapter, v.verse);
 
+  const line = store.lang === "sa" ? v.sa : meaning(v, store.lang);
+
   return (
-    <AppShell nav={false}>
-      <div className="page audio">
-        <div className="reader-top">
-          <Back onClick={() => store.go("verse")} />
-          <div className="center-meta">
-            <span>
-              Chapter {v.chapter} · Verse {v.verse}
-            </span>
-            <small>{ch.saTitle}</small>
+    <AppShell nav={false} parchment>
+      <div className={`page audio ${store.playing ? "is-playing" : ""}`}>
+        <div className="audio-stage">
+          <div className="audio-stage-media">
+            <SacredArt kind={chapterArt(v.chapter)} className="audio-stage-photo" alt="Krishna teaching Arjuna" />
+            <div className="audio-veil" aria-hidden />
+            <DivineLottie name="lotus" className="audio-lotus" />
           </div>
-          <span className="spacer" />
+          <div className="reader-top audio-nav">
+            <Back onClick={() => store.leaveAudio()} />
+            <div className="center-meta light-meta">
+              <span>
+                Chapter {v.chapter} · Verse {v.verse}
+              </span>
+              <small>{ch.saTitle}</small>
+            </div>
+            <span className="spacer" />
+          </div>
+          <div className="audio-portrait">
+            <DivineLottie name="glow" className="lottie-audio" />
+            <span className="portrait-ring" aria-hidden />
+            <SacredArt kind="flute" className="audio-photo" alt="Krishna with flute" />
+          </div>
         </div>
-        <div className="audio-art">
-          <DivineLottie name="glow" className="lottie-audio" />
-          <SacredArt kind="flute" className="audio-photo" alt="Krishna with flute" />
-        </div>
-        <h1 className="display sm center">{ch.enTitle}</h1>
-        <p className="center muted">
-          {v.chapter}.{v.verse}
-        </p>
-        <div className={`wave ${store.playing ? "on" : ""}`} aria-hidden>
-          {Array.from({ length: 24 }, (_, i) => (
-            <span key={i} style={{ animationDelay: `${i * 40}ms` }} />
-          ))}
-        </div>
-        <div className="audio-ctrls">
-          <IconBtn label="Previous" onClick={() => prev && store.openVerse(prev.chapter, prev.verse, "audio")}>
-            {Glyph.back}
-          </IconBtn>
-          <button
-            className="play-orb"
-            type="button"
-            aria-label={store.playing ? "Pause" : "Play"}
-            onClick={() => store.setPlaying(!store.playing)}
-          >
-            {store.playing ? Glyph.pause : Glyph.play}
-          </button>
-          <IconBtn label="Next" onClick={() => next && store.openVerse(next.chapter, next.verse, "audio")}>
-            {Glyph.next}
-          </IconBtn>
-        </div>
-        <div className="speed-row">
-          {SPEEDS.map((s) => (
-            <button key={s} type="button" className={store.speed === s ? "on" : ""} onClick={() => store.setSpeed(s)}>
-              {s}x
-            </button>
-          ))}
-        </div>
-        <label className="lang-select">
-          Language
-          <select value={store.lang} onChange={(e) => store.setLang(e.target.value as LangId)}>
-            {LANGUAGES.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.native}
-              </option>
+
+        <div className="audio-sheet">
+          <p className="kicker">Now reciting</p>
+          <h1 className="display sm center">{ch.saTitle}</h1>
+          <p className="center verse-mark">
+            {v.chapter}.{v.verse}
+          </p>
+          <p className={`audio-line ${store.lang === "ta" ? "ta" : ""} ${store.lang === "hi" || store.lang === "sa" ? "deva" : ""}`}>
+            {line}
+          </p>
+          <GoldRule className="rule" />
+          <div className={`wave ${store.playing ? "on" : ""}`} aria-hidden>
+            {Array.from({ length: 32 }, (_, i) => (
+              <span key={i} style={{ animationDelay: `${i * 35}ms`, height: `${10 + ((i * 7) % 18)}px` }} />
             ))}
-          </select>
-        </label>
-        <h2>Verses in this chapter</h2>
-        <div className="mini-list">
-          {list.map((item) => (
+          </div>
+          <div className="audio-ctrls">
+            <IconBtn label="Previous" onClick={() => prev && store.openVerse(prev.chapter, prev.verse, "audio")}>
+              {Glyph.back}
+            </IconBtn>
             <button
-              key={item.verse}
+              className={`play-orb ${store.playing ? "on" : ""}`}
               type="button"
-              className={item.verse === v.verse ? "on" : ""}
-              onClick={() => store.openVerse(item.chapter, item.verse, "audio")}
+              aria-label={store.playing ? "Pause" : "Play"}
+              onClick={() => store.setPlaying(!store.playing)}
             >
-              {item.chapter}.{item.verse}
+              {store.playing ? Glyph.pause : Glyph.play}
             </button>
-          ))}
+            <IconBtn label="Next" onClick={() => next && store.openVerse(next.chapter, next.verse, "audio")}>
+              {Glyph.next}
+            </IconBtn>
+          </div>
+          <div className="speed-row">
+            {SPEEDS.map((s) => (
+              <button key={s} type="button" className={store.speed === s ? "on" : ""} onClick={() => store.setSpeed(s)}>
+                {s}x
+              </button>
+            ))}
+          </div>
+          <label className="lang-select">
+            Language
+            <select value={store.lang} onChange={(e) => store.setLang(e.target.value as LangId)}>
+              {LANGUAGES.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.native}
+                </option>
+              ))}
+            </select>
+          </label>
+          <h2>Verses in this chapter</h2>
+          <div className="mini-list">
+            {list.map((item) => (
+              <button
+                key={item.verse}
+                type="button"
+                className={item.verse === v.verse ? "on" : ""}
+                onClick={() => store.openVerse(item.chapter, item.verse, "audio")}
+              >
+                {item.chapter}.{item.verse}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </AppShell>
@@ -746,22 +769,11 @@ export function Profile() {
             Language <span>{langLabel(store.lang)}</span>
           </button>
           <label className="setting-row">
-            Text size
-            <input
-              type="range"
-              min={0.9}
-              max={1.25}
-              step={0.05}
-              value={store.textScale}
-              onChange={(e) => store.setTextScale(Number(e.target.value))}
-            />
-          </label>
-          <label className="setting-row">
             Dark mode
             <input type="checkbox" className="switch" checked={store.dark} onChange={(e) => store.setDark(e.target.checked)} />
           </label>
           <button type="button" onClick={() => store.openVerse(store.chapter, store.verse, "audio")}>
-            Audio settings <span>{store.speed}x</span>
+            Audio settings <span>{store.speed}x · on device</span>
           </button>
           <label className="setting-row">
             Notifications
@@ -801,7 +813,9 @@ function InfoPage({
           <h1 className="inline-title">{title}</h1>
           <span className="spacer" />
         </div>
-        <SacredArt kind="chariot" className="info-photo" alt="Krishna teaching Arjuna" />
+        <div className="info-art">
+          <SacredArt kind="chariot" className="info-photo" alt="Krishna teaching Arjuna" />
+        </div>
         {children}
       </div>
     </AppShell>
@@ -821,8 +835,8 @@ export function AboutScreen() {
         recitation stay on this device. Bookmarks and progress are not sent to a cloud library.
       </p>
       <p>
-        Recitation uses the speech voices already on your device, preferring a calm male Indian voice. Audio is never
-        uploaded.
+        Recitation uses a voice on this device — your iPhone Personal Voice if you create one, or a recording you add
+        to the app. Audio is never uploaded.
       </p>
       <a className="text-link" href={Brand.support} target="_blank" rel="noreferrer">
         Support
@@ -842,14 +856,17 @@ export function PrivacyScreen() {
       </p>
       <h2>On this device</h2>
       <ul>
-        <li>Selected language, text size, and appearance</li>
+        <li>Selected language and appearance</li>
         <li>Bookmarks, favorites, and continue-reading position</li>
         <li>A local reading streak and verse history</li>
         <li>A morning verse reminder, if you turn notifications on</li>
       </ul>
       <p>This data is not sent to {Brand.company}.</p>
       <h2>Audio</h2>
-      <p>Recitation uses on-device speech. Audio is not uploaded. You can stop playback at any time.</p>
+      <p>
+        Recitation uses on-device speech. If you create a Personal Voice on iPhone, or add your own recordings, those
+        are used first. Audio is not uploaded. You can stop playback at any time.
+      </p>
       <h2>Notifications</h2>
       <p>Reminders are scheduled on this device only. You can turn them off in Profile.</p>
       <a className="text-link" href={Brand.privacy} target="_blank" rel="noreferrer">

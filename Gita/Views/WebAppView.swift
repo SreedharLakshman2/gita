@@ -51,7 +51,7 @@ struct WebAppView: UIViewRepresentable {
         let webView = GitaWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.isOpaque = false
-        webView.backgroundColor = UIColor(red: 243 / 255, green: 235 / 255, blue: 218 / 255, alpha: 1)
+        webView.backgroundColor = UIColor(red: 18 / 255, green: 21 / 255, blue: 28 / 255, alpha: 1)
         webView.scrollView.backgroundColor = webView.backgroundColor
         webView.scrollView.bounces = false
         webView.scrollView.delaysContentTouches = false
@@ -90,6 +90,8 @@ struct WebAppView: UIViewRepresentable {
             var rate: Float = 1
             var lang = "en-IN"
             var pitch: Float = 0.78
+            var chapter: Int?
+            var verse: Int?
             if let body = message.body as? [String: Any] {
                 text = (body["text"] as? String) ?? ""
                 if let value = body["rate"] as? Double {
@@ -101,12 +103,18 @@ struct WebAppView: UIViewRepresentable {
                 if let pitchValue = body["pitch"] as? Double {
                     pitch = Float(pitchValue)
                 }
+                if let chapterValue = body["chapter"] as? NSNumber {
+                    chapter = chapterValue.intValue
+                }
+                if let verseValue = body["verse"] as? NSNumber {
+                    verse = verseValue.intValue
+                }
             } else if let spoken = message.body as? String {
                 text = spoken
             } else {
                 return
             }
-            DivineVoice.shared.speak(text: text, lang: lang, rate: rate, pitch: pitch)
+            DivineVoice.shared.speak(text: text, lang: lang, rate: rate, pitch: pitch, chapter: chapter, verse: verse)
         }
 
         private func handleNotify(_ body: Any) {

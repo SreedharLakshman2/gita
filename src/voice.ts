@@ -33,6 +33,14 @@ const FEMALE_HINTS = [
   "zira",
 ];
 
+const clipModules = import.meta.glob("./voice-clips/*.{mp3,m4a,wav,ogg,aac}", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>;
+
+let clipPlayer: HTMLAudioElement | null = null;
+
 function scoreVoice(voice: SpeechSynthesisVoice, want: string): number {
   const name = voice.name.toLowerCase();
   const lang = voice.lang.toLowerCase();
@@ -55,16 +63,59 @@ function pickMaleVoice(want: string): SpeechSynthesisVoice | undefined {
   return [...voices].sort((a, b) => scoreVoice(b, want) - scoreVoice(a, want))[0];
 }
 
-export function speakDivine(text: string, lang: LangId, rate: number) {
+function clipUrl(chapter?: number, verse?: number, lang?: LangId): string | undefined {
+  if (!chapter || !verse || !lang) return undefined;
+  const keys = [`c${chapter}-v${verse}-${lang}`, `${chapter}-${verse}-${lang}`, `${chapter}.${verse}.${lang}`];
+  for (const [path, url] of Object.entries(clipModules)) {
+    if (keys.some((key) => path.includes(key))) return url;
+  }
+  return undefined;
+}
+
+function playClip(src: string, rate: number) {
+  stopClip();
+  clipPlayer = new Audio(src);
+  clipPlayer.playbackRate = Math.max(0.7, Math.min(1.5, rate));
+  void clipPlayer.play();
+}
+
+function stopClip() {
+  if (!clipPlayer) return;
+  clipPlayer.pause();
+  clipPlayer.src = "";
+  clipPlayer = null;
+}
+
+export function speakDivine(
+  text: string,
+  lang: LangId,
+  rate: number,
+  ref?: { chapter: number; verse: number }
+) {
   const spoken = text.replace(/\n/g, " ").trim();
   if (!spoken) return;
   const voiceLang = LANGUAGES.find((item) => item.id === lang)?.speech ?? "en-IN";
   const nativeHandler = typeof window !== "undefined" ? window.webkit?.messageHandlers?.sreeoSpeak : undefined;
   if (nativeHandler) {
-    nativeHandler.postMessage({ text: spoken, lang: voiceLang, rate, pitch: 0.78, divine: true });
+    nativeHandler.postMessage({
+      text: spoken,
+      lang: voiceLang,
+      rate,
+      pitch: 0.78,
+      divine: true,
+      chapter: ref?.chapter,
+      verse: ref?.verse,
+    });
+    return;
+  }
+  const custom = clipUrl(ref?.chapter, ref?.verse, lang);
+  if (custom) {
+    if (typeof window !== "undefined") window.speechSynthesis?.cancel();
+    playClip(custom, rate);
     return;
   }
   if (typeof window === "undefined" || !window.speechSynthesis) return;
+  stopClip();
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(spoken);
   utter.lang = voiceLang;
@@ -76,6 +127,7 @@ export function speakDivine(text: string, lang: LangId, rate: number) {
 }
 
 export function stopDivine() {
+  stopClip();
   const nativeStop = typeof window !== "undefined" ? window.webkit?.messageHandlers?.sreeoStopSpeak : undefined;
   if (nativeStop) {
     nativeStop.postMessage({});

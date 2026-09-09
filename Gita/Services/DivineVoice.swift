@@ -1,22 +1,33 @@
 import AVFoundation
 import Foundation
 
-final class DivineVoice: NSObject {
+final class DivineVoice: NSObject, AVAudioPlayerDelegate {
     static let shared = DivineVoice()
 
     private let speaker = AVSpeechSynthesizer()
+    private var clipPlayer: AVAudioPlayer?
+    private var askedPersonalVoice = false
 
     func stop() {
+        clipPlayer?.stop()
+        clipPlayer = nil
         if speaker.isSpeaking {
             speaker.stopSpeaking(at: .immediate)
         }
     }
 
-    func speak(text: String, lang: String, rate: Float, pitch: Float = 0.78) {
+    func speak(text: String, lang: String, rate: Float, pitch: Float = 0.78, chapter: Int? = nil, verse: Int? = nil) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.isEmpty == false else { return }
         stop()
         activateSession()
+        askPersonalVoiceOnce()
+
+        if let chapter, let verse, let file = clipURL(chapter: chapter, verse: verse, lang: lang) {
+            playClip(file, rate: rate)
+            return
+        }
+
         let utterance = AVSpeechUtterance(string: trimmed)
         utterance.voice = Self.krishnaVoice(lang: lang)
         let scaled = AVSpeechUtteranceDefaultSpeechRate * rate * 0.9
@@ -26,10 +37,60 @@ final class DivineVoice: NSObject {
         speaker.speak(utterance)
     }
 
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if clipPlayer === player {
+            clipPlayer = nil
+        }
+    }
+
+    private func playClip(_ url: URL, rate: Float) {
+        do {
+            let player = try AVAudioPlayer(contentsOf: url)
+            player.delegate = self
+            player.enableRate = true
+            player.rate = min(max(rate, 0.7), 1.5)
+            player.prepareToPlay()
+            player.play()
+            clipPlayer = player
+        } catch {
+            clipPlayer = nil
+        }
+    }
+
+    private func clipURL(chapter: Int, verse: Int, lang: String) -> URL? {
+        let prefix = String(lang.prefix(2)).lowercased()
+        let names = [
+            "c\(chapter)-v\(verse)-\(prefix)",
+            "\(chapter)-\(verse)-\(prefix)",
+            "\(chapter).\(verse).\(prefix)",
+        ]
+        let exts = ["m4a", "mp3", "wav", "aac", "caf"]
+        guard let voiceDir = Bundle.main.resourceURL?.appendingPathComponent("www/voice") else {
+            return nil
+        }
+        for name in names {
+            for ext in exts {
+                let url = voiceDir.appendingPathComponent("\(name).\(ext)")
+                if FileManager.default.fileExists(atPath: url.path) {
+                    return url
+                }
+            }
+        }
+        return nil
+    }
+
     private func activateSession() {
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
         try? session.setActive(true, options: [])
+    }
+
+    private func askPersonalVoiceOnce() {
+        guard askedPersonalVoice == false else { return }
+        askedPersonalVoice = true
+        if #available(iOS 17.0, *) {
+            AVSpeechSynthesizer.requestPersonalVoiceAuthorization { _ in }
+        }
     }
 
     private static func krishnaVoice(lang: String) -> AVSpeechSynthesisVoice? {
@@ -46,6 +107,9 @@ final class DivineVoice: NSObject {
         let voiceLang = voice.language.lowercased()
         let want = lang.lowercased()
         let prefix = String(want.prefix(2))
+        if #available(iOS 17.0, *), voice.voiceTraits.contains(.isPersonalVoice) {
+            value += 120
+        }
         if voiceLang == want { value += 50 }
         else if voiceLang.hasPrefix(prefix) { value += 28 }
         if voiceLang.contains("-in") { value += 12 }

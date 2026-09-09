@@ -7,7 +7,7 @@ struct LaunchSplashView: View {
 
     var body: some View {
         ZStack {
-            Brand.ivory.ignoresSafeArea()
+            Brand.navy.ignoresSafeArea()
             Circle()
                 .stroke(Brand.gold.opacity(0.28), lineWidth: 1)
                 .frame(width: 280, height: 280)
@@ -28,13 +28,13 @@ struct LaunchSplashView: View {
                     )
                 Text(Brand.shortName)
                     .font(.system(.title3, design: .serif).weight(.semibold))
-                    .foregroundStyle(Brand.navy)
+                    .foregroundStyle(Color.white.opacity(0.88))
                     .opacity(appear ? 1 : 0)
                 Text("Divine reading · inner quiet")
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .tracking(1.4)
                     .textCase(.uppercase)
-                    .foregroundStyle(Color.black.opacity(0.42))
+                    .foregroundStyle(Color.white.opacity(0.48))
                     .opacity(appear ? 1 : 0)
             }
 
@@ -42,7 +42,7 @@ struct LaunchSplashView: View {
                 sreeoTiles(size: 10, spacing: 3, dropIn: false)
                 Text(Brand.copyright)
                     .font(.system(.caption, design: .rounded).weight(.semibold))
-                    .foregroundStyle(Color.black.opacity(0.5))
+                    .foregroundStyle(Color.white.opacity(0.45))
                     .accessibilityLabel("Copyright 2026 Sai Laksha Technologies")
             }
             .opacity(appear ? 1 : 0)

@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { Motif } from "./data";
+import { BansuriMotif, PeacockMotif } from "./motifs";
 
 type IconProps = {
   size?: number;
@@ -108,7 +109,7 @@ export function FluteKrishna({ size = 160, className }: IconProps) {
 
 export function MotifMark({ motif, size = 28 }: { motif: Motif; size?: number }) {
   if (motif === "lotus") return <Lotus size={size} />;
-  if (motif === "flute") return <FluteKrishna size={size} />;
+  if (motif === "flute") return <BansuriMotif style={{ width: size, height: size }} />;
   if (motif === "chariot") {
     return (
       <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
@@ -145,15 +146,7 @@ export function MotifMark({ motif, size = 28 }: { motif: Motif; size?: number })
       </svg>
     );
   }
-  if (motif === "peacock") {
-    return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
-        <path d="M10 22c0-8 4-14 12-16 2 6-2 12-8 14" stroke="currentColor" strokeWidth="1.3" />
-        <circle cx="22" cy="8" r="2" stroke="currentColor" strokeWidth="1.2" />
-        <path d="M10 22c-4 2-6 6-4 8" stroke="currentColor" strokeWidth="1.2" />
-      </svg>
-    );
-  }
+  if (motif === "peacock") return <PeacockMotif style={{ width: size, height: size }} />;
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
       <path d="M16 6l2 6h6l-5 4 2 6-5-3.5L11 22l2-6-5-4h6z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />

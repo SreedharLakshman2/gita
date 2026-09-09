@@ -4,8 +4,8 @@
   "description": "Timeless wisdom of the Bhagavad Gita. Read, listen and reflect.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#F3EBDA",
-  "theme_color": "#1C2740",
+  "background_color": "#12151c",
+  "theme_color": "#12151c",
   "icons": [
     {
       "src": "apple-touch-icon.png",

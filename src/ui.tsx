@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { SacredMark } from "./art";
 import { Brand } from "./brand";
 import { Glyph } from "./icons";
 import { useStore, type TabId } from "./store";
@@ -36,34 +37,43 @@ export function HomeIndicator() {
 
 export function BottomNav() {
   const { tab, setTab } = useStore();
-  const items: { id: TabId; label: string; icon: ReactNode }[] = [
-    { id: "home", label: "Home", icon: Glyph.home },
-    { id: "gita", label: "Gita", icon: Glyph.book },
-    { id: "daily", label: "Daily", icon: Glyph.sun },
-    { id: "bookmarks", label: "Saved", icon: Glyph.bookmark },
-    { id: "profile", label: "Profile", icon: Glyph.person },
+  const items: { id: TabId; label: string; lottie: "lotus" | "peacock" | "flute" | "glow"; icon: ReactNode }[] = [
+    { id: "home", label: "Home", lottie: "lotus", icon: Glyph.home },
+    { id: "gita", label: "Gita", lottie: "peacock", icon: Glyph.book },
+    { id: "daily", label: "Daily", lottie: "glow", icon: Glyph.sun },
+    { id: "bookmarks", label: "Saved", lottie: "peacock", icon: Glyph.bookmark },
+    { id: "profile", label: "Profile", lottie: "flute", icon: Glyph.person },
   ];
   return (
     <nav className="tabbar" aria-label="Main">
-      {items.map((item) => (
-        <button
-          key={item.id}
-          className={`tab ${tab === item.id ? "on" : ""}`}
-          onClick={() => setTab(item.id)}
-          type="button"
-          aria-current={tab === item.id ? "page" : undefined}
-        >
-          <span className="tab-icon">{item.icon}</span>
-          <span>{item.label}</span>
-        </button>
-      ))}
+      {items.map((item) => {
+        const on = tab === item.id;
+        return (
+          <button
+            key={item.id}
+            className={`tab ${on ? "on" : ""}`}
+            onClick={() => setTab(item.id)}
+            type="button"
+            aria-current={on ? "page" : undefined}
+          >
+            <span className={`tab-icon ${on && item.lottie !== "glow" ? "has-motif" : ""}`}>
+              {on && item.lottie !== "glow" ? (
+                <SacredMark name={item.lottie} className="tab-motif" />
+              ) : (
+                item.icon
+              )}
+            </span>
+            <span>{item.label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 }
 
 export function Phone({
   children,
-  dark,
+  dark = true,
   label,
   onOpen,
 }: {

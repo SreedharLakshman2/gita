@@ -72,7 +72,7 @@ export function DesignBoard({ onOpen }: { onOpen: (freeze: Freeze) => void }) {
         <div className="board-grid">
           {FLOW.map((item) => (
             <StoreProvider key={item.label} freeze={item.freeze}>
-              <Phone label={item.label} dark={item.freeze.dark} onOpen={() => onOpen(item.freeze)}>
+              <Phone label={item.label} dark={item.freeze.dark ?? true} onOpen={() => onOpen(item.freeze)}>
                 <ActiveScreen />
               </Phone>
             </StoreProvider>

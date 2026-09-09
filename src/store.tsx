@@ -36,11 +36,11 @@ type Store = {
   tab: TabId;
   lang: LangId;
   dark: boolean;
-  textScale: number;
   onboarded: boolean;
   chapter: number;
   verse: number;
   readerLang: LangId;
+  returnTo: ScreenId;
   bookmarks: Bookmark[];
   history: { chapter: number; verse: number; at: string }[];
   playing: boolean;
@@ -55,10 +55,11 @@ type Store = {
   setLang: (id: LangId) => void;
   setReaderLang: (id: LangId) => void;
   setDark: (v: boolean) => void;
-  setTextScale: (n: number) => void;
   setNotify: (v: boolean) => void;
   openChapter: (n: number) => void;
   openVerse: (chapter: number, verse: number, screen?: ScreenId) => void;
+  leaveReader: () => void;
+  leaveAudio: () => void;
   toggleBookmark: (chapter: number, verse: number) => void;
   toggleFavorite: (chapter: number, verse: number) => void;
   isBookmarked: (chapter: number, verse: number) => boolean;
@@ -73,11 +74,12 @@ type Store = {
 };
 
 const KEY = "gita.sreeo.v1";
+const DARK_DEFAULT_MARK = "gita.sreeo.dark-default";
 
 type Persist = {
   lang: LangId;
+  readerLang: LangId;
   dark: boolean;
-  textScale: number;
   onboarded: boolean;
   chapter: number;
   verse: number;
@@ -88,6 +90,8 @@ type Persist = {
   notify: boolean;
 };
 
+type Seed = Partial<Pick<Store, "screen" | "dark" | "lang" | "chapter" | "verse" | "tab">>;
+
 function load(): Partial<Persist> {
   try {
     const raw = localStorage.getItem(KEY);
@@ -97,9 +101,21 @@ function load(): Partial<Persist> {
   }
 }
 
-const Ctx = createContext<Store | null>(null);
+function resolveDark(start: Seed, saved: Partial<Persist>, locked: boolean): boolean {
+  if (start.dark !== undefined) return start.dark;
+  if (locked) return true;
+  try {
+    if (!localStorage.getItem(DARK_DEFAULT_MARK)) {
+      localStorage.setItem(DARK_DEFAULT_MARK, "1");
+      return true;
+    }
+  } catch {
+    return saved.dark ?? true;
+  }
+  return saved.dark ?? true;
+}
 
-type Seed = Partial<Pick<Store, "screen" | "dark" | "lang" | "chapter" | "verse" | "tab">>;
+const Ctx = createContext<Store | null>(null);
 
 export function StoreProvider({
   children,
@@ -116,12 +132,13 @@ export function StoreProvider({
   const [screen, setScreen] = useState<ScreenId>(start.screen ?? (isNative() ? "splash" : "sreeo"));
   const [tab, setTabState] = useState<TabId>(start.tab ?? "home");
   const [lang, setLangState] = useState<LangId>(start.lang ?? saved.lang ?? "en");
-  const [dark, setDarkState] = useState(start.dark ?? saved.dark ?? false);
-  const [textScale, setTextScale] = useState(saved.textScale ?? 1);
+  const [dark, setDarkState] = useState(() => resolveDark(start, saved, locked));
   const [onboarded, setOnboarded] = useState(saved.onboarded ?? false);
   const [chapter, setChapter] = useState(start.chapter ?? saved.chapter ?? 2);
   const [verse, setVerse] = useState(start.verse ?? saved.verse ?? 47);
-  const [readerLang, setReaderLang] = useState<LangId>("sa");
+  const [readerLang, setReaderLangState] = useState<LangId>(start.lang ?? saved.readerLang ?? saved.lang ?? "sa");
+  const [returnTo, setReturnTo] = useState<ScreenId>("home");
+  const [audioFromVerse, setAudioFromVerse] = useState(false);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(
     saved.bookmarks?.length
       ? saved.bookmarks
@@ -144,8 +161,8 @@ export function StoreProvider({
     if (locked) return;
     const data: Persist = {
       lang,
+      readerLang,
       dark,
-      textScale,
       onboarded,
       chapter,
       verse,
@@ -156,7 +173,15 @@ export function StoreProvider({
       notify,
     };
     localStorage.setItem(KEY, JSON.stringify(data));
-  }, [lang, dark, textScale, onboarded, chapter, verse, bookmarks, history, versesRead, streak, notify, locked]);
+  }, [lang, readerLang, dark, onboarded, chapter, verse, bookmarks, history, versesRead, streak, notify, locked]);
+
+  useEffect(() => {
+    if (locked) return;
+    const root = document.documentElement;
+    root.dataset.theme = dark ? "dark" : "light";
+    root.style.colorScheme = dark ? "dark" : "light";
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#12151c" : "#F3EBDA");
+  }, [dark, locked]);
 
   const go = (id: ScreenId) => {
     if (locked) return;
@@ -192,10 +217,35 @@ export function StoreProvider({
 
   const openVerse = (c: number, v: number, next: ScreenId = "verse") => {
     if (locked) return;
+    if (screen !== "verse" && screen !== "audio") {
+      const back =
+        screen === "chapters" || screen === "chapter"
+          ? "chapter"
+          : screen === "sreeo" || screen === "splash" || screen === "onboard"
+            ? "home"
+            : screen;
+      setReturnTo(back);
+      setReaderLangState(lang);
+    }
+    setAudioFromVerse(next === "audio" && (screen === "verse" || audioFromVerse));
     setChapter(c);
     setVerse(v);
     setHistory((h) => [{ chapter: c, verse: v, at: "Just now" }, ...h.filter((x) => !(x.chapter === c && x.verse === v))].slice(0, 20));
     setScreen(next);
+  };
+
+  const leaveReader = () => {
+    if (locked) return;
+    go(returnTo === "chapter" || returnTo === "chapters" ? "chapter" : returnTo);
+  };
+
+  const leaveAudio = () => {
+    if (locked) return;
+    if (audioFromVerse) {
+      setScreen("verse");
+      return;
+    }
+    leaveReader();
   };
 
   const toggleBookmark = (c: number, v: number) => {
@@ -223,18 +273,18 @@ export function StoreProvider({
 
   const currentVerse = verseAt(chapter, verse) ?? verseAt(DAILY_KEY.chapter, DAILY_KEY.verse)!;
   const dailyVerse = verseOfTheDay();
-  const continueVerse = verseAt(CONTINUE_KEY.chapter, CONTINUE_KEY.verse)!;
+  const continueVerse = verseAt(chapter, verse) ?? verseAt(CONTINUE_KEY.chapter, CONTINUE_KEY.verse)!;
 
   const value: Store = {
     screen,
     tab,
     lang,
     dark,
-    textScale,
     onboarded,
     chapter,
     verse,
     readerLang,
+    returnTo,
     bookmarks,
     history,
     playing,
@@ -249,8 +299,12 @@ export function StoreProvider({
     setLang: (id) => {
       if (locked) return;
       setLangState(id);
+      setReaderLangState(id);
     },
-    setReaderLang,
+    setReaderLang: (id) => {
+      if (locked) return;
+      setReaderLangState(id);
+    },
     setDark: (v) => {
       if (locked) return;
       setDarkState(v);
@@ -259,9 +313,10 @@ export function StoreProvider({
       if (locked) return;
       setNotifyState(v);
     },
-    setTextScale,
     openChapter,
     openVerse,
+    leaveReader,
+    leaveAudio,
     toggleBookmark,
     toggleFavorite,
     isBookmarked: (c, v) => bookmarks.some((b) => b.chapter === c && b.verse === v),
@@ -293,8 +348,8 @@ export function langLabel(id: LangId) {
   return LANGUAGES.find((l) => l.id === id)?.native ?? id;
 }
 
-export function speak(text: string, lang: LangId, rate: number) {
-  speakDivine(text, lang, rate);
+export function speak(text: string, lang: LangId, rate: number, ref?: { chapter: number; verse: number }) {
+  speakDivine(text, lang, rate, ref);
 }
 
 export function stopSpeak() {

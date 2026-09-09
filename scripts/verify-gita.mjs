@@ -64,8 +64,11 @@ if (hindi < 700) fail(`Hindi coverage ${hindi}`);
 const langs = ["en", "hi", "sa", "ta"];
 for (const verse of verses) {
   for (const lang of langs) {
-    const text = (verse[lang] || verse.en || "").trim();
+    const text = String(verse[lang] || "").trim();
     if (!text) fail(`${verse.chapter}.${verse.verse} empty meaning for ${lang}`);
+  }
+  if (String(verse.ta).trim() === String(verse.en).trim()) {
+    fail(`${verse.chapter}.${verse.verse} Tamil is still English`);
   }
 }
 

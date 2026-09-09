@@ -54,7 +54,7 @@ export default function App() {
           <ActiveScreen />
         ) : (
           <div className="live-stage">
-            <Phone dark={initial?.dark}>
+            <Phone dark={initial?.dark ?? true}>
               <ActiveScreen />
             </Phone>
           </div>
