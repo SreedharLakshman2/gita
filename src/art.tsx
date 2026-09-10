@@ -9,6 +9,16 @@ import { BansuriMotif, LotusMotif, PeacockMotif } from "./motifs";
 const LOTTIES = { glow, lotus } as const;
 const ART = { chariot: chariotArt, flute: fluteArt } as const;
 
+export function SplashHerald({ className }: { className?: string }) {
+  return (
+    <div className={`splash-herald ${className ?? ""}`} aria-hidden>
+      <span className="splash-herald-glow" />
+      <PeacockMotif className="splash-peacock" />
+      <BansuriMotif className="splash-flute" />
+    </div>
+  );
+}
+
 export function SacredMark({
   name,
   className,

@@ -12,7 +12,7 @@ import {
   verseAt,
   versesForChapter,
 } from "./data";
-import { DivineLottie, SacredArt, SacredMark, chapterArt } from "./art";
+import { DivineLottie, SacredArt, SacredMark, SplashHerald, chapterArt } from "./art";
 import { Glyph, GoldRule, Lotus, MotifMark, OmMark, SreeoTiles } from "./icons";
 import { isNative } from "./native";
 import { langLabel, speak, stopSpeak, useStore } from "./store";
@@ -102,10 +102,7 @@ export function GitaSplash() {
       <button className="splash gita-splash" type="button" onClick={() => go(onboarded ? "home" : "onboard")} aria-label="Begin">
         <div className="grain" aria-hidden />
         <div className="splash-center">
-          <div className="lottie-halo">
-            <DivineLottie name="lotus" className="lottie-lotus" />
-            <Lotus size={72} className="gold-icon splash-lotus" />
-          </div>
+          <SplashHerald />
           <OmMark size={108} className="om-mark" />
           <h1 className="display">{Brand.full}</h1>
           <GoldRule className="rule" />
@@ -179,7 +176,9 @@ export function Home() {
         </button>
 
         <article className="daily-card">
-          <SacredArt kind="chariot" className="card-photo" alt="" />
+          <div className="card-photo-bleed">
+            <SacredArt kind="chariot" className="card-photo" alt="" />
+          </div>
           <button type="button" className="card-hit" onClick={() => go("daily")}>
             <div className="card-kicker">Daily Verse</div>
             <div className="card-meta">

@@ -9,6 +9,7 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
     private let speaker = AVSpeechSynthesizer()
     private var clipPlayer: AVAudioPlayer?
     private var askedPersonalVoice = false
+    private var utteranceId = 0
     private var currentUtterance: AVSpeechUtterance?
 
     private override init() {
