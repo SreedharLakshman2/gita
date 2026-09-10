@@ -897,6 +897,12 @@ export function PrivacyScreen() {
       </p>
       <h2>Notifications</h2>
       <p>Reminders are scheduled on this device only. You can turn them off in Profile.</p>
+      <h2>Advertising</h2>
+      <p>
+        On iPhone, a banner may appear above the tab bar. Apple may ask whether ads can be personalized. You can
+        decline. If you allow tracking, advertising partners may use a device identifier to show relevant ads. Ads are
+        hidden on full-screen reading, audio, and similar pages.
+      </p>
       <a className="text-link" href={Brand.privacy} target="_blank" rel="noreferrer">
         Full privacy policy
       </a>

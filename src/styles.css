@@ -21,6 +21,7 @@
   --safe-bottom: 8px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bot: env(safe-area-inset-bottom, 0px);
+  --ad-banner-h: 0px;
 }
 
 * {
@@ -385,6 +386,13 @@ p {
   opacity: 0.28;
   margin: 0 auto 6px;
   flex: none;
+}
+
+.ad-slot {
+  flex: none;
+  height: 0;
+  overflow: hidden;
+  background: var(--paper);
 }
 
 .tabbar {
@@ -2020,6 +2028,10 @@ html[data-theme="dark"] body {
   background: #12151c;
 }
 
+.app-shell[data-theme="dark"] .ad-slot {
+  background: #12151c;
+}
+
 .app-shell[data-theme="dark"] .tabbar {
   background: rgba(18, 21, 28, 0.94);
 }
@@ -2109,6 +2121,10 @@ html.native .board-return {
 
 html.native .app-shell {
   padding-top: var(--safe-top, 47px);
+}
+
+html.native .ad-slot {
+  height: var(--ad-banner-h, 0px);
 }
 
 html.native .tabbar {

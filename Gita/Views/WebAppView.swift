@@ -26,6 +26,8 @@ final class GitaWebView: WKWebView {
 }
 
 struct WebAppView: UIViewRepresentable {
+    var adHeight: CGFloat
+
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }
@@ -48,6 +50,7 @@ struct WebAppView: UIViewRepresentable {
         config.userContentController.add(context.coordinator, name: "sreeoStopSpeak")
         config.userContentController.add(context.coordinator, name: "sreeoNotify")
         config.userContentController.add(context.coordinator, name: "sreeoAmbient")
+        config.userContentController.add(context.coordinator, name: "sreeoAds")
 
         let webView = GitaWebView(frame: .zero, configuration: config)
         context.coordinator.webView = webView
@@ -78,7 +81,9 @@ struct WebAppView: UIViewRepresentable {
         return webView
     }
 
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        Coordinator.applyAdHeight(uiView, height: adHeight)
+    }
 
     final class Coordinator: NSObject, WKURLSchemeHandler, WKNavigationDelegate, WKScriptMessageHandler {
         weak var webView: WKWebView?
@@ -94,6 +99,10 @@ struct WebAppView: UIViewRepresentable {
             }
             if message.name == "sreeoAmbient" {
                 handleAmbient(message.body)
+                return
+            }
+            if message.name == "sreeoAds" {
+                handleAds(message.body)
                 return
             }
             guard message.name == "sreeoSpeak" else { return }
@@ -143,6 +152,20 @@ struct WebAppView: UIViewRepresentable {
             DivineVoice.shared.setAmbient(enabled: flag(payload["enabled"]), ducked: flag(payload["ducked"]))
         }
 
+        private func handleAds(_ body: Any) {
+            let visible: Bool
+            if let payload = body as? [String: Any] {
+                visible = flag(payload["visible"])
+            } else if let flag = body as? Bool {
+                visible = flag
+            } else {
+                return
+            }
+            DispatchQueue.main.async {
+                AdsManager.shared.setTabBarVisible(visible)
+            }
+        }
+
         private func flag(_ value: Any?) -> Bool {
             if let flag = value as? Bool { return flag }
             if let number = value as? NSNumber { return number.boolValue }
@@ -188,6 +211,7 @@ struct WebAppView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             Self.applySafeArea(webView, insets: webView.safeAreaInsets)
+            Self.applyAdHeight(webView, height: AdsManager.shared.reserveHeight)
         }
 
         static func applySafeArea(_ webView: WKWebView, insets: UIEdgeInsets) {
@@ -196,6 +220,15 @@ struct WebAppView: UIViewRepresentable {
             let js = """
             document.documentElement.style.setProperty('--safe-top', '\(top)px');
             document.documentElement.style.setProperty('--safe-bot', '\(bot)px');
+            """
+            webView.evaluateJavaScript(js, completionHandler: nil)
+        }
+
+        static func applyAdHeight(_ webView: WKWebView, height: CGFloat) {
+            let value = max(height, 0)
+            let js = """
+            document.documentElement.style.setProperty('--ad-banner-h', '\(value)px');
+            document.documentElement.classList.toggle('has-ad-banner', \(value > 0 ? "true" : "false"));
             """
             webView.evaluateJavaScript(js, completionHandler: nil)
         }

@@ -14,6 +14,10 @@
 		GTBF00050000000000000000 /* WebAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00050000000000000000 /* WebAppView.swift */; };
 		GTBF00060000000000000000 /* DivineVoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00060000000000000000 /* DivineVoice.swift */; };
 		GTBF00070000000000000000 /* VerseNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00070000000000000000 /* VerseNotifications.swift */; };
+		GTBF00080000000000000000 /* AdConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00080000000000000000 /* AdConfig.swift */; };
+		GTBF00090000000000000000 /* AdsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00090000000000000000 /* AdsManager.swift */; };
+		GTBF00100000000000000000 /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00100000000000000000 /* BannerAdView.swift */; };
+		GTBFAADS00000000000001 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = GTPRDADS00000000000001 /* GoogleMobileAds */; };
 		GTBF02000000000000000000 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = GTFR02000000000000000000 /* Assets.xcassets */; };
 		GTBF02010000000000000000 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = GTFR02010000000000000000 /* PrivacyInfo.xcprivacy */; };
 		GTBF03000000000000000000 /* www in Resources */ = {isa = PBXBuildFile; fileRef = GTFR03000000000000000000 /* www */; };
@@ -27,6 +31,9 @@
 		GTFR00050000000000000000 /* WebAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppView.swift; sourceTree = "<group>"; };
 		GTFR00060000000000000000 /* DivineVoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DivineVoice.swift; sourceTree = "<group>"; };
 		GTFR00070000000000000000 /* VerseNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseNotifications.swift; sourceTree = "<group>"; };
+		GTFR00080000000000000000 /* AdConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdConfig.swift; sourceTree = "<group>"; };
+		GTFR00090000000000000000 /* AdsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdsManager.swift; sourceTree = "<group>"; };
+		GTFR00100000000000000000 /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
 		GTFR02000000000000000000 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		GTFR02010000000000000000 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		GTFR02020000000000000000 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -39,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				GTBFAADS00000000000001 /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +98,7 @@
 				GTFR00030000000000000000 /* RootView.swift */,
 				GTFR00040000000000000000 /* LaunchSplashView.swift */,
 				GTFR00050000000000000000 /* WebAppView.swift */,
+				GTFR00100000000000000000 /* BannerAdView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -99,6 +108,8 @@
 			children = (
 				GTFR00060000000000000000 /* DivineVoice.swift */,
 				GTFR00070000000000000000 /* VerseNotifications.swift */,
+				GTFR00080000000000000000 /* AdConfig.swift */,
+				GTFR00090000000000000000 /* AdsManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -119,6 +130,9 @@
 			dependencies = (
 			);
 			name = Gita;
+			packageProductDependencies = (
+				GTPRDADS00000000000001 /* GoogleMobileAds */,
+			);
 			productName = Gita;
 			productReference = GTFR02030000000000000000 /* Gita.app */;
 			productType = "com.apple.product-type.application";
@@ -147,6 +161,9 @@
 				Base,
 			);
 			mainGroup = GTGRP0000000000000000000;
+			packageReferences = (
+				GTPKGADS00000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			productRefGroup = GTGRP0000000000000000001 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -181,6 +198,9 @@
 				GTBF00050000000000000000 /* WebAppView.swift in Sources */,
 				GTBF00060000000000000000 /* DivineVoice.swift in Sources */,
 				GTBF00070000000000000000 /* VerseNotifications.swift in Sources */,
+				GTBF00080000000000000000 /* AdConfig.swift in Sources */,
+				GTBF00090000000000000000 /* AdsManager.swift in Sources */,
+				GTBF00100000000000000000 /* BannerAdView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,6 +341,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		GTPKGADS00000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		GTPRDADS00000000000001 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = GTPKGADS00000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = GTPRJ0000000000000000000 /* Project object */;
 }

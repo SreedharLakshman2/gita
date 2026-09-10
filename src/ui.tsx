@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useLayoutEffect, type ReactNode } from "react";
+import { reportTabBarVisible } from "./ads";
 import { SacredMark } from "./art";
 import { Brand } from "./brand";
 import { Glyph } from "./icons";
@@ -111,10 +112,15 @@ export function AppShell({
   parchment?: boolean;
 }) {
   const { dark } = useStore();
+  useLayoutEffect(() => {
+    reportTabBarVisible(nav);
+    return () => reportTabBarVisible(false);
+  }, [nav]);
   return (
     <div className={`app-shell ${parchment ? "parchment" : ""}`} data-theme={dark ? "dark" : "light"}>
       <StatusBar />
       <div className="app-body">{children}</div>
+      {nav ? <div className="ad-slot" aria-hidden /> : null}
       {nav ? <BottomNav /> : null}
       <HomeIndicator />
     </div>
