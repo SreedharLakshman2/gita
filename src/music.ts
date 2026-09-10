@@ -5,6 +5,7 @@ const DUCKED = 0.045;
 let wanted = false;
 let ducked = false;
 let bound = false;
+let playToken = 0;
 let player: HTMLAudioElement | null = null;
 
 function nativeHandler() {
@@ -16,16 +17,45 @@ function targetVolume() {
   return ducked ? DUCKED : IDLE;
 }
 
-function nativeEnabled() {
-  return wanted && (typeof document === "undefined" || !document.hidden);
+function nativePayload(enabled: boolean) {
+  return { enabled, ducked };
 }
 
-function syncNative() {
-  nativeHandler()?.postMessage({ enabled: nativeEnabled(), ducked });
+function haltHtml() {
+  playToken += 1;
+  const nodes = [
+    player,
+    ...(typeof document !== "undefined" ? [...document.querySelectorAll<HTMLAudioElement>("[data-gita-ambient]")] : []),
+  ].filter(Boolean) as HTMLAudioElement[];
+  for (const el of nodes) {
+    el.pause();
+    el.volume = 0;
+    el.loop = false;
+    try {
+      el.currentTime = 0;
+    } catch {
+      /* ignore unseekable */
+    }
+    el.removeAttribute("src");
+    el.src = "";
+    try {
+      el.load();
+    } catch {
+      /* ignore */
+    }
+    el.remove();
+  }
+  player = null;
+}
+
+function haltAll() {
+  haltHtml();
+  nativeHandler()?.postMessage(nativePayload(false));
 }
 
 function ensurePlayer() {
-  if (player || nativeHandler() || typeof Audio === "undefined") return player;
+  if (player) return player;
+  if (typeof Audio === "undefined") return null;
   player = new Audio(SRC);
   player.loop = true;
   player.preload = "auto";
@@ -38,26 +68,50 @@ function ensurePlayer() {
 }
 
 async function playWeb() {
+  const mine = ++playToken;
   const el = ensurePlayer();
   if (!el) return;
-  el.volume = targetVolume();
   if (!wanted || document.hidden) {
-    el.pause();
+    haltHtml();
     return;
   }
+  el.loop = true;
+  el.volume = targetVolume();
   try {
     await el.play();
   } catch {
     /* Browsers wait for a tap; bindUnlock retries. */
   }
+  if (!wanted) {
+    haltHtml();
+    return;
+  }
+  if (mine !== playToken) return;
+  el.volume = targetVolume();
 }
 
 function bindUnlock() {
   if (bound || typeof window === "undefined") return;
   bound = true;
   const retry = () => {
+    if (!wanted) {
+      haltAll();
+      return;
+    }
+    if (typeof document !== "undefined" && document.hidden) {
+      if (player) {
+        player.pause();
+        player.volume = 0;
+      }
+      nativeHandler()?.postMessage(nativePayload(false));
+      return;
+    }
     if (nativeHandler()) {
-      syncNative();
+      nativeHandler()?.postMessage(nativePayload(true));
+      return;
+    }
+    if (player && !player.paused) {
+      player.volume = targetVolume();
       return;
     }
     void playWeb();
@@ -70,13 +124,13 @@ function bindUnlock() {
 export function setAmbientEnabled(on: boolean) {
   wanted = on;
   bindUnlock();
+  if (!on) {
+    haltAll();
+    return;
+  }
   if (nativeHandler()) {
-    if (player) {
-      player.pause();
-      player.remove();
-      player = null;
-    }
-    syncNative();
+    haltHtml();
+    nativeHandler()?.postMessage(nativePayload(true));
     return;
   }
   void playWeb();
@@ -84,8 +138,9 @@ export function setAmbientEnabled(on: boolean) {
 
 export function setAmbientDucked(on: boolean) {
   ducked = on;
+  if (!wanted) return;
   if (nativeHandler()) {
-    syncNative();
+    nativeHandler()?.postMessage(nativePayload(true));
     return;
   }
   if (player) player.volume = targetVolume();

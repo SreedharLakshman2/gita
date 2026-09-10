@@ -1016,17 +1016,41 @@ p {
   color: var(--muted);
 }
 
-.avatar-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 22px;
-  border: 1px solid var(--line);
-  background: var(--card);
-  color: var(--gold);
-  display: grid;
-  place-items: center;
+.home-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex: none;
-  padding: 0;
+}
+
+.music-toggle {
+  position: relative;
+}
+
+.music-toggle.on {
+  border-color: color-mix(in srgb, var(--gold) 55%, var(--line));
+  color: var(--gold);
+}
+
+.music-toggle:not(.on) {
+  color: var(--muted);
+}
+
+.music-toggle .home-music-mark {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.music-toggle:not(.on)::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transform: rotate(-38deg);
+  pointer-events: none;
 }
 
 .avatar-btn svg {
@@ -1178,6 +1202,19 @@ p {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.daily-card .row-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.daily-card .gold-btn {
+  width: 100%;
+  padding: 0 8px;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 13px;
 }
 
 h2 {

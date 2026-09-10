@@ -280,8 +280,11 @@ export function StoreProvider({
 
   useEffect(() => {
     setAmbientEnabled(!locked && music);
-    return () => setAmbientEnabled(false);
   }, [music, locked]);
+
+  useEffect(() => {
+    return () => setAmbientEnabled(false);
+  }, []);
 
   useEffect(() => {
     setAmbientDucked(!locked && playing);
@@ -332,6 +335,7 @@ export function StoreProvider({
     },
     setMusic: (v) => {
       if (locked) return;
+      setAmbientEnabled(v);
       setMusicState(v);
     },
     openChapter,

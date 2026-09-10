@@ -56,11 +56,9 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
     func setAmbient(enabled: Bool, ducked: Bool) {
         ambientWanted = enabled
         if enabled == false {
-            ambientPlayer?.setVolume(0, fadeDuration: 0.35)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-                guard self?.ambientWanted == false else { return }
-                self?.ambientPlayer?.pause()
-            }
+            ambientPlayer?.volume = 0
+            ambientPlayer?.stop()
+            ambientPlayer?.currentTime = 0
             return
         }
         activateSession()
@@ -79,7 +77,7 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
         }
         ambientPlayer?.play()
         let level: Float = ducked ? 0.045 : 0.16
-        ambientPlayer?.setVolume(level, fadeDuration: 0.45)
+        ambientPlayer?.setVolume(level, fadeDuration: 0.25)
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {

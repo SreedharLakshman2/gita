@@ -140,9 +140,15 @@ struct WebAppView: UIViewRepresentable {
 
         private func handleAmbient(_ body: Any) {
             guard let payload = body as? [String: Any] else { return }
-            let enabled = payload["enabled"] as? Bool ?? false
-            let ducked = payload["ducked"] as? Bool ?? false
-            DivineVoice.shared.setAmbient(enabled: enabled, ducked: ducked)
+            DivineVoice.shared.setAmbient(enabled: flag(payload["enabled"]), ducked: flag(payload["ducked"]))
+        }
+
+        private func flag(_ value: Any?) -> Bool {
+            if let flag = value as? Bool { return flag }
+            if let number = value as? NSNumber { return number.boolValue }
+            if let number = value as? Int { return number != 0 }
+            if let number = value as? Double { return number != 0 }
+            return false
         }
 
         func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {

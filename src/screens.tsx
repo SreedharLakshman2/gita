@@ -154,7 +154,7 @@ export function Onboarding() {
 }
 
 export function Home() {
-  const { go, openVerse, dailyVerse, continueVerse, lang } = useStore();
+  const { go, openVerse, dailyVerse, continueVerse, lang, music, setMusic } = useStore();
   return (
     <AppShell>
       <div className="page home">
@@ -165,9 +165,20 @@ export function Home() {
             </p>
             <h1>Continue your journey</h1>
           </div>
-          <button className="avatar-btn" type="button" onClick={() => go("profile")} aria-label="Profile">
-            <Lotus size={20} />
-          </button>
+          <div className="home-actions">
+            <button
+              className={`avatar-btn music-toggle ${music ? "on" : ""}`}
+              type="button"
+              aria-pressed={music}
+              aria-label={music ? "Stop background music" : "Play background music"}
+              onClick={() => setMusic(!music)}
+            >
+              <SacredMark name="flute" className="home-music-mark" />
+            </button>
+            <button className="avatar-btn" type="button" onClick={() => go("profile")} aria-label="Profile">
+              <Lotus size={20} />
+            </button>
+          </div>
         </header>
 
         <button className="search-fake" type="button" onClick={() => go("search")}>
@@ -191,6 +202,9 @@ export function Home() {
             <GoldBtn onClick={() => openVerse(dailyVerse.chapter, dailyVerse.verse)}>Read Verse</GoldBtn>
             <GoldBtn ghost onClick={() => openVerse(dailyVerse.chapter, dailyVerse.verse, "audio")}>
               Listen
+            </GoldBtn>
+            <GoldBtn ghost={!music} onClick={() => setMusic(!music)}>
+              {music ? "Music on" : "Music off"}
             </GoldBtn>
           </div>
         </article>
@@ -849,7 +863,7 @@ export function AboutScreen() {
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">
           CC BY 4.0
         </a>
-        . Turn it off in Profile.
+        . Turn it off from Home or Profile.
       </p>
       <a className="text-link" href={Brand.support} target="_blank" rel="noreferrer">
         Support
@@ -879,7 +893,7 @@ export function PrivacyScreen() {
       <p>
         Recitation uses on-device speech. If you create a Personal Voice on iPhone, or add your own recordings, those
         are used first. Soft background music may play from a file bundled in the app. Audio is not uploaded. You can
-        stop recitation and turn music off in Profile at any time.
+        stop recitation and turn music off from Home or Profile at any time.
       </p>
       <h2>Notifications</h2>
       <p>Reminders are scheduled on this device only. You can turn them off in Profile.</p>
