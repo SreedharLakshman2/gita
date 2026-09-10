@@ -14,24 +14,10 @@ const MALE_HINTS = [
   "aaron",
   "google हिन्दी",
   "krishna",
+  "ramasamy",
 ];
 
-const FEMALE_HINTS = [
-  "female",
-  "woman",
-  "veena",
-  "lekha",
-  "samantha",
-  "karen",
-  "moira",
-  "tessa",
-  "fiona",
-  "priya",
-  "meera",
-  "kanya",
-  "heera",
-  "zira",
-];
+const FEMALE_HINTS = ["female", "woman", "samantha", "karen", "moira", "tessa", "fiona", "zira"];
 
 const clipModules = import.meta.glob("./voice-clips/*.{mp3,m4a,wav,ogg,aac}", {
   eager: true,
@@ -40,25 +26,34 @@ const clipModules = import.meta.glob("./voice-clips/*.{mp3,m4a,wav,ogg,aac}", {
 }) as Record<string, string>;
 
 let clipPlayer: HTMLAudioElement | null = null;
+let pendingVoices: (() => void) | null = null;
+
+function langPrefix(code: string) {
+  return code.toLowerCase().replace("_", "-").split("-")[0] || code.toLowerCase();
+}
+
+function languageMatches(voiceLang: string, want: string) {
+  return langPrefix(voiceLang) === langPrefix(want);
+}
 
 function scoreVoice(voice: SpeechSynthesisVoice, want: string): number {
   const name = voice.name.toLowerCase();
   const lang = voice.lang.toLowerCase();
-  const prefix = want.slice(0, 2).toLowerCase();
+  const wantNorm = want.toLowerCase().replace("_", "-");
   let score = 0;
-  if (lang === want.toLowerCase()) score += 48;
-  else if (lang.startsWith(prefix)) score += 28;
-  if (want.startsWith("hi") && lang.startsWith("hi")) score += 8;
+  if (!languageMatches(lang, want)) return -1000;
+  if (lang.replace("_", "-") === wantNorm) score += 80;
+  else score += 40;
   if (lang.includes("-in")) score += 12;
-  if (MALE_HINTS.some((hint) => name.includes(hint))) score += 36;
-  if (FEMALE_HINTS.some((hint) => name.includes(hint))) score -= 48;
+  if (MALE_HINTS.some((hint) => name.includes(hint))) score += 16;
+  if (FEMALE_HINTS.some((hint) => name.includes(hint))) score -= 8;
   if (voice.localService) score += 6;
   return score;
 }
 
-function pickMaleVoice(want: string): SpeechSynthesisVoice | undefined {
+function pickVoice(want: string): SpeechSynthesisVoice | undefined {
   if (typeof window === "undefined" || !window.speechSynthesis) return undefined;
-  const voices = window.speechSynthesis.getVoices();
+  const voices = window.speechSynthesis.getVoices().filter((voice) => languageMatches(voice.lang, want));
   if (!voices.length) return undefined;
   return [...voices].sort((a, b) => scoreVoice(b, want) - scoreVoice(a, want))[0];
 }
@@ -99,6 +94,33 @@ function playClip(src: string, rate: number, gen: number) {
   void clipPlayer.play();
 }
 
+function speakWeb(spoken: string, voiceLang: string, rate: number, gen: number, tries = 0) {
+  if (typeof window === "undefined" || !window.speechSynthesis) {
+    finishSpeech(gen);
+    return;
+  }
+  if (gen !== speakGen) return;
+  const voicesReady = window.speechSynthesis.getVoices().length > 0;
+  if (!voicesReady && tries < 8) {
+    pendingVoices = () => speakWeb(spoken, voiceLang, rate, gen, tries + 1);
+    window.setTimeout(() => {
+      if (pendingVoices) pendingVoices();
+    }, 120);
+    return;
+  }
+  stopClip();
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(spoken);
+  utter.lang = voiceLang;
+  utter.rate = Math.max(0.65, Math.min(1.35, rate * 0.92));
+  utter.pitch = 0.86;
+  const chosen = pickVoice(voiceLang);
+  if (chosen) utter.voice = chosen;
+  utter.onend = () => finishSpeech(gen);
+  utter.onerror = () => finishSpeech(gen);
+  window.speechSynthesis.speak(utter);
+}
+
 export function speakDivine(
   text: string,
   lang: LangId,
@@ -115,6 +137,7 @@ export function speakDivine(
   const gen = speakGen;
   activeGen = gen;
   onSpeechEnd = onEnd ?? null;
+  pendingVoices = null;
   const voiceLang = LANGUAGES.find((item) => item.id === lang)?.speech ?? "en-IN";
   const nativeHandler = typeof window !== "undefined" ? window.webkit?.messageHandlers?.sreeoSpeak : undefined;
   if (nativeHandler) {
@@ -122,7 +145,7 @@ export function speakDivine(
       text: spoken,
       lang: voiceLang,
       rate,
-      pitch: 0.78,
+      pitch: 0.86,
       divine: true,
       chapter: ref?.chapter,
       verse: ref?.verse,
@@ -135,26 +158,13 @@ export function speakDivine(
     playClip(custom, rate, gen);
     return;
   }
-  if (typeof window === "undefined" || !window.speechSynthesis) {
-    finishSpeech(gen);
-    return;
-  }
-  stopClip();
-  window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(spoken);
-  utter.lang = voiceLang;
-  utter.rate = Math.max(0.65, Math.min(1.35, rate * 0.92));
-  utter.pitch = 0.78;
-  const chosen = pickMaleVoice(voiceLang);
-  if (chosen) utter.voice = chosen;
-  utter.onend = () => finishSpeech(gen);
-  utter.onerror = () => finishSpeech(gen);
-  window.speechSynthesis.speak(utter);
+  speakWeb(spoken, voiceLang, rate, gen);
 }
 
 export function stopDivine() {
   speakGen += 1;
   onSpeechEnd = null;
+  pendingVoices = null;
   stopClip();
   const nativeStop = typeof window !== "undefined" ? window.webkit?.messageHandlers?.sreeoStopSpeak : undefined;
   if (nativeStop) {
@@ -176,6 +186,7 @@ if (typeof window !== "undefined" && window.speechSynthesis) {
   window.speechSynthesis.getVoices();
   window.speechSynthesis.onvoiceschanged = () => {
     window.speechSynthesis.getVoices();
+    pendingVoices?.();
   };
 }
 

@@ -39,10 +39,8 @@ struct WebAppView: UIViewRepresentable {
         config.mediaTypesRequiringUserActionForPlayback = []
         config.defaultWebpagePreferences.allowsContentJavaScript = true
 
-        let boot = """
-        window.__GITA_NATIVE__ = true;
-        document.documentElement.classList.add("native");
-        """
+        let idiom = UIDevice.current.userInterfaceIdiom == .pad ? "ipad" : "iphone"
+        let boot = StoreLaunch.bootJavaScript(idiom: idiom)
         config.userContentController.addUserScript(
             WKUserScript(source: boot, injectionTime: .atDocumentStart, forMainFrameOnly: true)
         )
@@ -75,7 +73,7 @@ struct WebAppView: UIViewRepresentable {
             webView.isInspectable = true
         }
         #endif
-        var start = URLRequest(url: URL(string: "gita://app/index.html")!)
+        var start = URLRequest(url: StoreLaunch.startURL())
         start.cachePolicy = .reloadIgnoringLocalCacheData
         webView.load(start)
         return webView
@@ -187,7 +185,10 @@ struct WebAppView: UIViewRepresentable {
             }
 
             do {
-                let data = try Data(contentsOf: fileURL)
+                var data = try Data(contentsOf: fileURL)
+                if fileURL.pathExtension.lowercased() == "html" {
+                    data = Self.injectBootScript(into: data)
+                }
                 let mime = Self.mimeType(for: fileURL)
                 let response = HTTPURLResponse(
                     url: url,
@@ -285,6 +286,19 @@ struct WebAppView: UIViewRepresentable {
                 return candidate
             }
             return nil
+        }
+
+        private static func injectBootScript(into data: Data) -> Data {
+            guard var html = String(data: data, encoding: .utf8),
+                  html.contains("__GITA_NATIVE__") == false,
+                  let range = html.range(of: "<head>")
+            else {
+                return data
+            }
+            let idiom = UIDevice.current.userInterfaceIdiom == .pad ? "ipad" : "iphone"
+            let boot = StoreLaunch.bootJavaScript(idiom: idiom)
+            html.replaceSubrange(range, with: "<head>\n    <script>\(boot)</script>")
+            return Data(html.utf8)
         }
 
         private static func mimeType(for fileURL: URL) -> String {

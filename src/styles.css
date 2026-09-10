@@ -623,9 +623,9 @@ p {
 .mini-list button {
   border: 1px solid var(--line);
   background: var(--card);
-  min-height: 36px;
-  padding: 0 12px;
-  border-radius: 999px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 16px;
   position: relative;
   overflow: hidden;
 }
@@ -669,7 +669,34 @@ p {
 .mini-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+}
+
+.lang-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.lang-row .chip {
+  min-height: 58px;
+  display: grid;
+  justify-items: start;
+  align-content: center;
+  gap: 2px;
+  text-align: left;
+}
+
+.lang-row .chip b {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.lang-row .chip span {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.72;
 }
 
 .meter {
@@ -919,6 +946,18 @@ p {
   height: 148px;
   margin: 0 auto 6px;
   overflow: visible;
+  transform-style: preserve-3d;
+  animation: herald-float 5.6s ease-in-out infinite;
+}
+
+@keyframes herald-float {
+  0%,
+  100% {
+    transform: perspective(520px) rotateY(-8deg) translateY(0);
+  }
+  50% {
+    transform: perspective(520px) rotateY(8deg) translateY(-6px);
+  }
 }
 
 .splash-herald-glow {
@@ -1259,17 +1298,17 @@ h2 {
 .lang-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
 .explore,
 .lang-card {
   border: 1px solid var(--line);
-  padding: 14px;
+  padding: 16px 14px;
   text-align: left;
   display: grid;
   gap: 6px;
-  min-height: 96px;
+  min-height: 108px;
   color: var(--ink);
 }
 
@@ -1456,7 +1495,7 @@ h2 {
 .seg {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 
 .seg {
@@ -1727,24 +1766,70 @@ h2 {
 
 .lang-select {
   display: grid;
-  gap: 6px;
-  font-size: 12px;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 650;
   color: var(--muted);
 }
 
+.lang-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.lang-pick button {
+  min-height: 58px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  display: grid;
+  justify-items: start;
+  align-content: center;
+  gap: 2px;
+  text-align: left;
+}
+
+.lang-pick button b {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.lang-pick button span {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.lang-pick button.on {
+  background: var(--navy);
+  border-color: var(--navy);
+}
+
+.lang-pick button.on b,
+.lang-pick button.on span {
+  color: var(--gold-bright);
+}
+
 .lang-select select {
-  min-height: 44px;
+  min-height: 52px;
   border-radius: 14px;
   border: 1px solid var(--line);
   background: var(--card);
   color: var(--ink);
-  padding: 0 12px;
+  padding: 0 14px;
   box-shadow: var(--shadow);
 }
 
 .lang-select select option {
   background: var(--card);
   color: var(--ink);
+  font-size: 18px;
+  padding: 12px;
 }
 
 .mini-list button {
@@ -2077,9 +2162,24 @@ html[data-theme="dark"] body {
 }
 
 .app-shell[data-theme="dark"] .lang-select select,
-.app-shell[data-theme="dark"] .lang-select select option {
+.app-shell[data-theme="dark"] .lang-select select option,
+.app-shell[data-theme="dark"] .lang-pick button {
   background: #1c2230;
   color: #efe6d4;
+}
+
+.app-shell[data-theme="dark"] .lang-pick button b {
+  color: #efe6d4;
+}
+
+.app-shell[data-theme="dark"] .lang-pick button.on {
+  background: linear-gradient(180deg, #f6e7b8, #d4b56a);
+  border-color: #d4b56a;
+}
+
+.app-shell[data-theme="dark"] .lang-pick button.on b,
+.app-shell[data-theme="dark"] .lang-pick button.on span {
+  color: #1c1a14;
 }
 
 .app-shell[data-theme="dark"] .sreeo-word {
@@ -2135,10 +2235,95 @@ html.native .splash-foot {
   bottom: calc(12px + var(--safe-bot, 20px));
 }
 
+@media (min-width: 768px) {
+  html.native,
+  html.native body,
+  html.native #root,
+  html.native .proto,
+  html.native .proto.full {
+    background: #12151c;
+  }
+
+  html.native .app-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  html.native .page {
+    width: min(720px, 100%);
+  }
+
+  html.native .page.home,
+  html.native .page.daily {
+    width: min(760px, 100%);
+  }
+
+  html.native .page.audio {
+    width: 100%;
+  }
+
+  html.native .audio-sheet,
+  html.native .reader-top,
+  html.native .lang-tabs,
+  html.native .leaf,
+  html.native .reader-bar {
+    width: min(720px, 100%);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  html.native .tabbar {
+    grid-template-columns: repeat(5, minmax(88px, 140px));
+    justify-content: center;
+    padding-left: 28px;
+    padding-right: 28px;
+    gap: 10px;
+  }
+
+  html.native .lang-pick,
+  html.native .lang-row,
+  html.native .lang-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  html.native .display {
+    font-size: 40px;
+  }
+
+  html.native .meaning.hero-mean,
+  html.native .sa-hero {
+    font-size: 28px;
+    line-height: 1.45;
+  }
+
+  html.native .audio-stage {
+    min-height: min(46vh, 460px);
+  }
+
+  html.native .daily-hero,
+  html.native .card-photo-bleed {
+    min-height: 280px;
+  }
+}
+
+@media (min-width: 1024px) and (orientation: landscape) {
+  html.native .page,
+  html.native .audio-sheet,
+  html.native .reader-top,
+  html.native .lang-tabs,
+  html.native .leaf,
+  html.native .reader-bar {
+    width: min(860px, 92%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sreeo-tiles.drop .sreeo-tile,
   .wave.on span,
-  .page.audio.is-playing .portrait-ring {
+  .page.audio.is-playing .portrait-ring,
+  .splash-herald {
     animation: none;
   }
 }

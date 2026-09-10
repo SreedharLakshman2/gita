@@ -1,0 +1,24 @@
+APP REVIEW NOTES — Gita 1.0 (1)
+
+Gita is a free Bhagavad Gita reading app for iPhone and iPad from Sai Laksha Technologies / Sreeo Studio.
+
+No login. Choose a language, open a verse, and tap Listen to hear recitation on the device.
+
+Guideline 2.1 — App Tracking Transparency
+- The ATT prompt is shown after the launch splash, on a fresh install, before AdMob starts (GADDelayAppMeasurementInit is YES).
+- It appears on iPhone and iPad when the scene is active. Allow or Ask App Not to Track; ads still show.
+- To recapture: delete the app, reinstall this build, launch, wait a few seconds after the splash. Do not only reset the advertising identifier — delete the app so ATT status is notDetermined.
+
+Guideline 1.5 — Support URL
+- Support: https://sreedharlakshman2.github.io/gita/
+- Privacy: https://sreedharlakshman2.github.io/gita/privacy.html
+- Marketing / developer site (app-ads.txt at site root): https://sreedharlakshman2.github.io/
+
+Ads
+- Google AdMob banners above the tab bar on main tabs. Hidden on full-screen reading, audio, About, and Privacy.
+- App Privacy: Device ID for third-party advertising; tracking only if the user allows ATT.
+
+Audio
+- Recitation uses on-device speech (AVSpeech). Optional bundled temple music can be turned off from Home or Profile. This is not a streaming music app.
+
+Export compliance: ITSAppUsesNonExemptEncryption = NO (HTTPS / AdMob only).

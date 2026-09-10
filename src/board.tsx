@@ -5,7 +5,7 @@ import { ActiveScreen } from "./screens";
 import { StoreProvider, type ScreenId, type TabId } from "./store";
 import { Phone } from "./ui";
 
-type Freeze = {
+export type Freeze = {
   screen: ScreenId;
   dark?: boolean;
   lang?: "en" | "ta" | "hi" | "sa";
@@ -138,5 +138,3 @@ function GoldMini() {
     </svg>
   );
 }
-
-export type { Freeze };

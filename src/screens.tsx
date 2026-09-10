@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Brand, LANGUAGES, READER_TABS, type LangId } from "./brand";
+import { Brand, LANGUAGES, READER_TABS } from "./brand";
 import {
   CHAPTERS,
   SEARCH_CHIPS,
@@ -9,6 +9,7 @@ import {
   nextVerse,
   prevVerse,
   searchVerses,
+  spokenVerse,
   verseAt,
   versesForChapter,
 } from "./data";
@@ -16,7 +17,7 @@ import { DivineLottie, SacredArt, SacredMark, SplashHerald, chapterArt } from ".
 import { Glyph, GoldRule, Lotus, MotifMark, OmMark, SreeoTiles } from "./icons";
 import { isNative } from "./native";
 import { langLabel, speak, stopSpeak, useStore } from "./store";
-import { AppShell, Back, GoldBtn, IconBtn, Pad, Progress, StudioMark } from "./ui";
+import { AppShell, Back, GoldBtn, IconBtn, LangPicker, Pad, Progress, StudioMark } from "./ui";
 
 export function ActiveScreen() {
   const { screen } = useStore();
@@ -131,14 +132,15 @@ export function Onboarding() {
         <p className="lede">Read, listen and reflect on the timeless teachings of Lord Krishna.</p>
         <p className="section-label">Choose a language to begin</p>
         <div className="lang-row">
-          {LANGUAGES.slice(0, 6).map((l) => (
+          {LANGUAGES.map((l) => (
             <button
               key={l.id}
               type="button"
               className={`chip ${lang === l.id ? "on" : ""}`}
               onClick={() => setLang(l.id)}
             >
-              {l.native}
+              <b>{l.native}</b>
+              <span>{l.english}</span>
             </button>
           ))}
         </div>
@@ -200,7 +202,7 @@ export function Home() {
           </button>
           <div className="row-btns">
             <GoldBtn onClick={() => openVerse(dailyVerse.chapter, dailyVerse.verse)}>Read Verse</GoldBtn>
-            <GoldBtn ghost onClick={() => openVerse(dailyVerse.chapter, dailyVerse.verse, "audio")}>
+            <GoldBtn ghost onClick={() => openVerse(dailyVerse.chapter, dailyVerse.verse, "audio", { play: true })}>
               Listen
             </GoldBtn>
             <GoldBtn ghost={!music} onClick={() => setMusic(!music)}>
@@ -242,7 +244,7 @@ export function Home() {
               <b>Daily Wisdom</b>
               <span>A verse each dawn</span>
             </button>
-            <button type="button" className="explore" onClick={() => openVerse(2, 47, "audio")}>
+            <button type="button" className="explore" onClick={() => openVerse(2, 47, "audio", { play: true })}>
               <span className="mark">{Glyph.headphones}</span>
               <b>Audio</b>
               <span>Recitation</span>
@@ -312,7 +314,7 @@ export function ChapterDetail() {
           <p className="lede light">{ch.description}</p>
           <div className="row-btns">
             <GoldBtn onClick={() => list[0] && openVerse(ch.number, list[0].verse)}>Start Reading</GoldBtn>
-            <GoldBtn ghost onClick={() => list[0] && openVerse(ch.number, list[0].verse, "audio")}>
+            <GoldBtn ghost onClick={() => list[0] && openVerse(ch.number, list[0].verse, "audio", { play: true })}>
               Listen
             </GoldBtn>
           </div>
@@ -420,7 +422,7 @@ export function VerseReader() {
           </IconBtn>
           <IconBtn
             label="Play audio"
-            onClick={() => store.openVerse(v.chapter, v.verse, "audio")}
+            onClick={() => store.openVerse(v.chapter, v.verse, "audio", { play: true, lang: store.readerLang })}
           >
             {Glyph.play}
           </IconBtn>
@@ -512,16 +514,24 @@ export function AudioReader() {
   const v = store.currentVerse;
   const ch = chapterByNumber(v.chapter);
   const list = versesForChapter(v.chapter);
-  const text = store.lang === "sa" ? v.iast : meaning(v, store.lang);
+  const spoken = spokenVerse(v, store.lang);
 
   useEffect(() => {
-    if (store.playing) {
-      speak(text, store.lang === "sa" ? "sa" : store.lang, store.speed, { chapter: v.chapter, verse: v.verse }, () => {
+    return () => stopSpeak();
+  }, []);
+
+  useEffect(() => {
+    if (!store.playing) {
+      stopSpeak();
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      speak(spoken.text, spoken.lang, store.speed, { chapter: v.chapter, verse: v.verse }, () => {
         store.setPlaying(false);
       });
-    } else stopSpeak();
-    return () => stopSpeak();
-  }, [store.playing, store.speed, text, store.lang, v.chapter, v.verse, store.setPlaying]);
+    }, 40);
+    return () => window.clearTimeout(timer);
+  }, [store.playing, store.speed, spoken.text, spoken.lang, v.chapter, v.verse, store.setPlaying]);
 
   const prev = prevVerse(v.chapter, v.verse);
   const next = nextVerse(v.chapter, v.verse);
@@ -577,7 +587,11 @@ export function AudioReader() {
               className={`play-orb ${store.playing ? "on" : ""}`}
               type="button"
               aria-label={store.playing ? "Pause" : "Play"}
-              onClick={() => store.setPlaying(!store.playing)}
+              onClick={() => {
+                const next = !store.playing;
+                store.setPlaying(next);
+                if (!next) stopSpeak();
+              }}
             >
               {store.playing ? Glyph.pause : Glyph.play}
             </button>
@@ -592,16 +606,7 @@ export function AudioReader() {
               </button>
             ))}
           </div>
-          <label className="lang-select">
-            Language
-            <select value={store.lang} onChange={(e) => store.setLang(e.target.value as LangId)}>
-              {LANGUAGES.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.native}
-                </option>
-              ))}
-            </select>
-          </label>
+          <LangPicker value={store.lang} onChange={(id) => store.setLang(id)} />
           <h2>Verses in this chapter</h2>
           <div className="mini-list">
             {list.map((item) => (
@@ -664,9 +669,9 @@ export function Bookmarks() {
                     <div className="card-meta">
                       Chapter {b.chapter} · Verse {b.verse}
                     </div>
-                    <p>{meaning(found, store.lang === "sa" ? "en" : store.lang)}</p>
+                    <p>{meaning(found, b.lang ?? (store.lang === "sa" ? "en" : store.lang))}</p>
                     <div className="saved-meta">
-                      <span>{langLabel(store.lang)}</span>
+                      <span>{langLabel(b.lang ?? store.lang)}</span>
                       <span>{b.savedAt}</span>
                     </div>
                   </button>
@@ -674,7 +679,13 @@ export function Bookmarks() {
                     <button type="button" onClick={() => store.toggleBookmark(b.chapter, b.verse)}>
                       Remove
                     </button>
-                    <button type="button" className="listen" onClick={() => store.openVerse(b.chapter, b.verse, "audio")}>
+                    <button
+                      type="button"
+                      className="listen"
+                      onClick={() =>
+                        store.openVerse(b.chapter, b.verse, "audio", { play: true, lang: b.lang ?? store.readerLang })
+                      }
+                    >
                       Listen
                     </button>
                   </div>
@@ -792,7 +803,7 @@ export function Profile() {
             Background music
             <input type="checkbox" className="switch" checked={store.music} onChange={(e) => store.setMusic(e.target.checked)} />
           </label>
-          <button type="button" onClick={() => store.openVerse(store.chapter, store.verse, "audio")}>
+          <button type="button" onClick={() => store.openVerse(store.chapter, store.verse, "audio", { play: true })}>
             Audio settings <span>{store.speed}x · on device</span>
           </button>
           <label className="setting-row">

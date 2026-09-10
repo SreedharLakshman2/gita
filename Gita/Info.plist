@@ -8,7 +8,7 @@
 		<string>LaunchBackground</string>
 	</dict>
 	<key>NSPersonalVoiceUsageDescription</key>
-	<string>Gita can recite verses in a voice you create on this iPhone. The voice stays on your device.</string>
+	<string>Gita can recite verses in a voice you create on this iPhone or iPad. The voice stays on your device.</string>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
@@ -18,7 +18,7 @@
 	<key>GADDelayAppMeasurementInit</key>
 	<true/>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>Gita can show relevant ads that help keep the app free.</string>
+	<string>Gita can show relevant ads that help keep the app free on iPhone and iPad.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

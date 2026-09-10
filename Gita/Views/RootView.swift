@@ -2,9 +2,11 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject private var ads: AdsManager
-    @State private var showSplash = true
+    @State private var showSplash = StoreLaunch.isActive == false
 
-    private let tabBarChrome: CGFloat = 64
+    private var tabBarChrome: CGFloat {
+        UIDevice.current.userInterfaceIdiom == .pad ? 72 : 64
+    }
 
     var body: some View {
         GeometryReader { geo in

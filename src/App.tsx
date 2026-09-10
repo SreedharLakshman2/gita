@@ -1,20 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DesignBoard, type Freeze } from "./board";
 import { isNative } from "./native";
 import { ActiveScreen } from "./screens";
-import { StoreProvider } from "./store";
+import { StoreProvider, type ScreenId, type TabId } from "./store";
 import { Phone } from "./ui";
 import "./styles.css";
 
+function launchFromQuery(): Freeze | undefined {
+  if (typeof window === "undefined") return undefined;
+  const injected = window.__GITA_LAUNCH__;
+  const query = new URLSearchParams(window.location.search);
+  const screen = (injected?.screen || query.get("screen")) as ScreenId | null;
+  if (!screen) return undefined;
+  return {
+    screen,
+    dark: query.get("light") !== "1",
+    lang: (injected?.lang || query.get("lang") || "en") as Freeze["lang"],
+    chapter: Number(injected?.chapter || query.get("chapter") || 2) || 2,
+    verse: Number(injected?.verse || query.get("verse") || 47) || 47,
+    tab: ((injected?.tab || query.get("tab")) as TabId) || undefined,
+  };
+}
+
 export default function App() {
   const native = isNative();
+  const launch = useMemo(() => launchFromQuery(), []);
   const [narrow, setNarrow] = useState(() =>
     native || (typeof window !== "undefined" && window.matchMedia("(max-width: 780px)").matches)
   );
   const [mode, setMode] = useState<"board" | "app">(() =>
-    native || (typeof window !== "undefined" && window.matchMedia("(max-width: 780px)").matches) ? "app" : "board"
+    native || launch || (typeof window !== "undefined" && window.matchMedia("(max-width: 780px)").matches)
+      ? "app"
+      : "board"
   );
-  const [initial, setInitial] = useState<Freeze | undefined>();
+  const [initial, setInitial] = useState<Freeze | undefined>(launch);
 
   useEffect(() => {
     if (native) {
@@ -49,7 +68,7 @@ export default function App() {
           Design board
         </button>
       )}
-      <StoreProvider initial={initial} key={initial ? JSON.stringify(initial) : "fresh"}>
+      <StoreProvider freeze={launch} initial={initial} key={initial ? JSON.stringify(initial) : "fresh"}>
         {narrow || native ? (
           <ActiveScreen />
         ) : (

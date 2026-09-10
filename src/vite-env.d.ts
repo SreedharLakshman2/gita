@@ -11,5 +11,12 @@ interface Window {
       sreeoAds?: { postMessage: (message: unknown) => void };
     };
   };
+  __GITA_LAUNCH__?: {
+    screen?: string;
+    lang?: string;
+    chapter?: number;
+    verse?: number;
+    tab?: string;
+  };
 }
 

@@ -9,7 +9,6 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
     private let speaker = AVSpeechSynthesizer()
     private var clipPlayer: AVAudioPlayer?
     private var ambientPlayer: AVAudioPlayer?
-    private var askedPersonalVoice = false
     private var utteranceId = 0
     private var currentUtterance: AVSpeechUtterance?
     private var ambientWanted = false
@@ -29,12 +28,14 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
         }
     }
 
-    func speak(text: String, lang: String, rate: Float, pitch: Float = 0.78, chapter: Int? = nil, verse: Int? = nil) {
+    func speak(text: String, lang: String, rate: Float, pitch: Float = 0.86, chapter: Int? = nil, verse: Int? = nil) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.isEmpty == false else { return }
+        guard trimmed.isEmpty == false else {
+            notifyFinished()
+            return
+        }
         stop()
-        activateSession()
-        askPersonalVoiceOnce()
+        activateSession(spoken: true)
         utteranceId += 1
         let current = utteranceId
 
@@ -44,13 +45,16 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
         }
 
         let utterance = AVSpeechUtterance(string: trimmed)
-        utterance.voice = Self.krishnaVoice(lang: lang)
+        utterance.voice = Self.voice(for: lang)
         let scaled = AVSpeechUtteranceDefaultSpeechRate * rate * 0.9
         utterance.rate = min(max(scaled, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
         utterance.pitchMultiplier = min(max(pitch, 0.5), 1.2)
         utterance.volume = 1
         currentUtterance = utterance
-        speaker.speak(utterance)
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.utteranceId == current else { return }
+            self.speaker.speak(utterance)
+        }
     }
 
     func setAmbient(enabled: Bool, ducked: Bool) {
@@ -61,7 +65,7 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
             ambientPlayer?.currentTime = 0
             return
         }
-        activateSession()
+        activateSession(spoken: false)
         if ambientPlayer == nil {
             guard let url = ambientURL() else { return }
             do {
@@ -81,6 +85,12 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        guard utterance === currentUtterance else { return }
+        currentUtterance = nil
+        notifyFinished()
+    }
+
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         guard utterance === currentUtterance else { return }
         currentUtterance = nil
         notifyFinished()
@@ -148,48 +158,48 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
         return nil
     }
 
-    private func activateSession() {
+    private func activateSession(spoken: Bool) {
         let session = AVAudioSession.sharedInstance()
-        try? session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+        if spoken {
+            try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        } else {
+            try? session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+        }
         try? session.setActive(true, options: [])
     }
 
-    private func askPersonalVoiceOnce() {
-        guard askedPersonalVoice == false else { return }
-        askedPersonalVoice = true
-        if #available(iOS 17.0, *) {
-            AVSpeechSynthesizer.requestPersonalVoiceAuthorization { _ in }
+    private static func voice(for lang: String) -> AVSpeechSynthesisVoice? {
+        let voices = AVSpeechSynthesisVoice.speechVoices().filter { languageMatches($0.language, want: lang) }
+        if let ranked = voices.sorted(by: { score($0, lang: lang) > score($1, lang: lang) }).first {
+            return ranked
         }
-    }
-
-    private static func krishnaVoice(lang: String) -> AVSpeechSynthesisVoice? {
-        let voices = AVSpeechSynthesisVoice.speechVoices()
-        let ranked = voices.sorted { score($0, lang: lang) > score($1, lang: lang) }
-        return ranked.first
-            ?? AVSpeechSynthesisVoice(language: lang)
+        return AVSpeechSynthesisVoice(language: lang)
             ?? AVSpeechSynthesisVoice(language: "hi-IN")
             ?? AVSpeechSynthesisVoice(language: "en-IN")
     }
 
+    private static func languageMatches(_ voiceLang: String, want: String) -> Bool {
+        prefix(voiceLang) == prefix(want)
+    }
+
+    private static func prefix(_ code: String) -> String {
+        code.lowercased().replacingOccurrences(of: "_", with: "-").split(separator: "-").first.map(String.init) ?? code.lowercased()
+    }
+
     private static func score(_ voice: AVSpeechSynthesisVoice, lang: String) -> Int {
         var value = 0
-        let voiceLang = voice.language.lowercased()
-        let want = lang.lowercased()
-        let prefix = String(want.prefix(2))
-        if #available(iOS 17.0, *), voice.voiceTraits.contains(.isPersonalVoice) {
-            value += 120
-        }
-        if voiceLang == want { value += 50 }
-        else if voiceLang.hasPrefix(prefix) { value += 28 }
+        let voiceLang = voice.language.lowercased().replacingOccurrences(of: "_", with: "-")
+        let want = lang.lowercased().replacingOccurrences(of: "_", with: "-")
+        if voiceLang == want { value += 80 } else { value += 40 }
         if voiceLang.contains("-in") { value += 12 }
-        if voice.gender == .male { value += 42 }
-        if voice.gender == .female { value -= 40 }
-        let name = voice.name.lowercased()
-        for token in ["rishi", "kumar", "ravi", "hemant", "suresh", "krishna"] where name.contains(token) {
-            value += 24
+        if voice.quality == .enhanced { value += 8 }
+        if voice.gender == .male { value += 16 }
+        if #available(iOS 17.0, *), voice.voiceTraits.contains(.isPersonalVoice) {
+            value += 20
         }
-        for token in ["veena", "lekha", "samantha", "karen", "priya", "meera"] where name.contains(token) {
-            value -= 30
+        let name = voice.name.lowercased()
+        for token in ["rishi", "kumar", "ravi", "hemant", "suresh", "krishna", "ramasamy"] where name.contains(token) {
+            value += 12
         }
         return value
     }

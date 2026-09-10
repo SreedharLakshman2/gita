@@ -24,6 +24,7 @@ final class AdsManager: NSObject, ObservableObject {
     var shouldShowBanner: Bool { reserveHeight > 0 }
 
     func markSplashFinished() {
+        guard StoreLaunch.isActive == false else { return }
         splashFinished = true
         requestTrackingThenStart()
     }
@@ -89,6 +90,7 @@ final class AdsManager: NSObject, ObservableObject {
     }
 
     private func startAds() {
+        guard StoreLaunch.isActive == false else { return }
         guard AdConfig.adsEnabled else { return }
         guard didStartAds == false else { return }
         didStartAds = true

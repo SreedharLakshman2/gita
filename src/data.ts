@@ -249,7 +249,7 @@ export function verseAt(chapter: number, verse: number): Verse | undefined {
   return VERSES.find((v) => v.chapter === chapter && v.verse === verse);
 }
 
-export function meaning(verse: Verse, lang: LangId): string {
+function verseText(verse: Verse, lang: LangId): string {
   const map: Partial<Record<LangId, string | undefined>> = {
     sa: verse.sa,
     en: verse.en,
@@ -262,8 +262,22 @@ export function meaning(verse: Verse, lang: LangId): string {
     mr: verse.mr,
     gu: verse.gu,
   };
-  const text = (map[lang] || "").trim();
-  return text || verse.en;
+  return (map[lang] || "").trim();
+}
+
+export function meaning(verse: Verse, lang: LangId): string {
+  return verseText(verse, lang) || verse.en;
+}
+
+/** Text and language actually spoken. Falls back to English if that translation is missing. */
+export function spokenVerse(verse: Verse, lang: LangId): { text: string; lang: LangId } {
+  if (lang === "sa") {
+    const text = (verse.iast || verse.sa || "").replace(/\n/g, " ").trim();
+    return text ? { text, lang: "sa" } : { text: verse.en, lang: "en" };
+  }
+  const text = verseText(verse, lang);
+  if (text) return { text, lang };
+  return { text: verse.en, lang: "en" };
 }
 
 export function nextVerse(chapter: number, verse: number): { chapter: number; verse: number } | null {

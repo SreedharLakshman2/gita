@@ -1,7 +1,7 @@
 import { useLayoutEffect, type ReactNode } from "react";
 import { reportTabBarVisible } from "./ads";
 import { SacredMark } from "./art";
-import { Brand } from "./brand";
+import { Brand, LANGUAGES, type LangId } from "./brand";
 import { Glyph } from "./icons";
 import { useStore, type TabId } from "./store";
 
@@ -123,6 +123,35 @@ export function AppShell({
       {nav ? <div className="ad-slot" aria-hidden /> : null}
       {nav ? <BottomNav /> : null}
       <HomeIndicator />
+    </div>
+  );
+}
+
+export function LangPicker({
+  value,
+  onChange,
+}: {
+  value: LangId;
+  onChange: (id: LangId) => void;
+}) {
+  return (
+    <div className="lang-select">
+      <span>Language</span>
+      <div className="lang-pick" role="listbox" aria-label="Language">
+        {LANGUAGES.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            role="option"
+            aria-selected={value === item.id}
+            className={value === item.id ? "on" : ""}
+            onClick={() => onChange(item.id)}
+          >
+            <b>{item.native}</b>
+            <span>{item.english}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

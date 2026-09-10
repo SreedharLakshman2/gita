@@ -22,8 +22,12 @@ struct BannerAdView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: GADBannerView, context: Context) {
-        if uiView.rootViewController == nil {
-            uiView.rootViewController = AdsManager.keyWindowRoot()
+        uiView.rootViewController = AdsManager.keyWindowRoot()
+        let bannerWidth = max(width, 320)
+        let size = GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(bannerWidth)
+        if abs(uiView.adSize.size.width - size.size.width) > 1 {
+            uiView.adSize = size
+            uiView.load(GADRequest())
         }
     }
 

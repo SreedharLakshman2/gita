@@ -30,6 +30,7 @@ export type Bookmark = {
   verse: number;
   savedAt: string;
   favorite?: boolean;
+  lang?: LangId;
 };
 
 type Store = {
@@ -60,7 +61,7 @@ type Store = {
   setNotify: (v: boolean) => void;
   setMusic: (v: boolean) => void;
   openChapter: (n: number) => void;
-  openVerse: (chapter: number, verse: number, screen?: ScreenId) => void;
+  openVerse: (chapter: number, verse: number, screen?: ScreenId, opts?: { play?: boolean; lang?: LangId }) => void;
   leaveReader: () => void;
   leaveAudio: () => void;
   toggleBookmark: (chapter: number, verse: number) => void;
@@ -182,12 +183,11 @@ export function StoreProvider({
   }, [lang, readerLang, dark, onboarded, chapter, verse, bookmarks, history, versesRead, streak, notify, music, locked]);
 
   useEffect(() => {
-    if (locked) return;
     const root = document.documentElement;
     root.dataset.theme = dark ? "dark" : "light";
     root.style.colorScheme = dark ? "dark" : "light";
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#12151c" : "#F3EBDA");
-  }, [dark, locked]);
+  }, [dark]);
 
   const go = (id: ScreenId) => {
     if (locked) return;
@@ -221,8 +221,14 @@ export function StoreProvider({
     setTabState("gita");
   };
 
-  const openVerse = (c: number, v: number, next: ScreenId = "verse") => {
+  const openVerse = (c: number, v: number, next: ScreenId = "verse", opts?: { play?: boolean; lang?: LangId }) => {
     if (locked) return;
+    if (opts?.lang) {
+      setLangState(opts.lang);
+      setReaderLangState(opts.lang);
+    } else if (next === "audio" && (screen === "verse" || screen === "audio")) {
+      setLangState(readerLang);
+    }
     if (screen !== "verse" && screen !== "audio") {
       const back =
         screen === "chapters" || screen === "chapter"
@@ -231,13 +237,13 @@ export function StoreProvider({
             ? "home"
             : screen;
       setReturnTo(back);
-      setReaderLangState(lang);
     }
     setAudioFromVerse(next === "audio" && (screen === "verse" || audioFromVerse));
     setChapter(c);
     setVerse(v);
     setHistory((h) => [{ chapter: c, verse: v, at: "Just now" }, ...h.filter((x) => !(x.chapter === c && x.verse === v))].slice(0, 20));
     setScreen(next);
+    if (opts?.play) setPlaying(true);
   };
 
   const leaveReader = () => {
@@ -260,7 +266,7 @@ export function StoreProvider({
     setBookmarks((list) => {
       const has = list.some((b) => b.chapter === c && b.verse === v);
       if (has) return list.filter((b) => !(b.chapter === c && b.verse === v));
-      return [{ chapter: c, verse: v, savedAt: "Today" }, ...list];
+      return [{ chapter: c, verse: v, savedAt: "Today", lang: readerLang }, ...list];
     });
   };
 
@@ -268,7 +274,7 @@ export function StoreProvider({
     if (locked) return;
     setBookmarks((list) => {
       const found = list.find((b) => b.chapter === c && b.verse === v);
-      if (!found) return [{ chapter: c, verse: v, savedAt: "Today", favorite: true }, ...list];
+      if (!found) return [{ chapter: c, verse: v, savedAt: "Today", favorite: true, lang: readerLang }, ...list];
       return list.map((b) => (b.chapter === c && b.verse === v ? { ...b, favorite: !b.favorite } : b));
     });
   };
