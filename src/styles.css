@@ -1247,6 +1247,10 @@ h2 {
   line-height: 1.55;
 }
 
+.info-page p a {
+  color: var(--gold);
+}
+
 .info-page ul {
   margin: 0;
   padding-left: 18px;

@@ -3,6 +3,7 @@ import { Brand, LANGUAGES, type LangId } from "./brand";
 import { CONTINUE_KEY, DAILY_KEY, VERSES, verseAt, verseOfTheDay, type Verse } from "./data";
 import { isNative } from "./native";
 import { syncVerseReminder } from "./notify";
+import { setAmbientDucked, setAmbientEnabled } from "./music";
 import { speakDivine, stopDivine } from "./voice";
 
 export type ScreenId =
@@ -47,6 +48,7 @@ type Store = {
   speed: number;
   search: string;
   notify: boolean;
+  music: boolean;
   download: boolean;
   versesRead: number;
   streak: number;
@@ -56,6 +58,7 @@ type Store = {
   setReaderLang: (id: LangId) => void;
   setDark: (v: boolean) => void;
   setNotify: (v: boolean) => void;
+  setMusic: (v: boolean) => void;
   openChapter: (n: number) => void;
   openVerse: (chapter: number, verse: number, screen?: ScreenId) => void;
   leaveReader: () => void;
@@ -88,6 +91,7 @@ type Persist = {
   versesRead: number;
   streak: number;
   notify: boolean;
+  music: boolean;
 };
 
 type Seed = Partial<Pick<Store, "screen" | "dark" | "lang" | "chapter" | "verse" | "tab">>;
@@ -153,6 +157,7 @@ export function StoreProvider({
   const [speed, setSpeed] = useState(1);
   const [search, setSearch] = useState(start.screen === "search" ? "Dharma" : "");
   const [notify, setNotifyState] = useState(saved.notify ?? true);
+  const [music, setMusicState] = useState(saved.music ?? true);
   const [download] = useState(false);
   const [versesRead] = useState(saved.versesRead ?? 42);
   const [streak] = useState(saved.streak ?? 7);
@@ -171,9 +176,10 @@ export function StoreProvider({
       versesRead,
       streak,
       notify,
+      music,
     };
     localStorage.setItem(KEY, JSON.stringify(data));
-  }, [lang, readerLang, dark, onboarded, chapter, verse, bookmarks, history, versesRead, streak, notify, locked]);
+  }, [lang, readerLang, dark, onboarded, chapter, verse, bookmarks, history, versesRead, streak, notify, music, locked]);
 
   useEffect(() => {
     if (locked) return;
@@ -241,6 +247,7 @@ export function StoreProvider({
 
   const leaveAudio = () => {
     if (locked) return;
+    setPlaying(false);
     if (audioFromVerse) {
       setScreen("verse");
       return;
@@ -271,6 +278,15 @@ export function StoreProvider({
     void syncVerseReminder(notify, lang);
   }, [notify, lang, locked]);
 
+  useEffect(() => {
+    setAmbientEnabled(!locked && music);
+    return () => setAmbientEnabled(false);
+  }, [music, locked]);
+
+  useEffect(() => {
+    setAmbientDucked(!locked && playing);
+  }, [playing, locked]);
+
   const currentVerse = verseAt(chapter, verse) ?? verseAt(DAILY_KEY.chapter, DAILY_KEY.verse)!;
   const dailyVerse = verseOfTheDay();
   const continueVerse = verseAt(chapter, verse) ?? verseAt(CONTINUE_KEY.chapter, CONTINUE_KEY.verse)!;
@@ -291,6 +307,7 @@ export function StoreProvider({
     speed,
     search,
     notify,
+    music,
     download,
     versesRead,
     streak,
@@ -312,6 +329,10 @@ export function StoreProvider({
     setNotify: (v) => {
       if (locked) return;
       setNotifyState(v);
+    },
+    setMusic: (v) => {
+      if (locked) return;
+      setMusicState(v);
     },
     openChapter,
     openVerse,

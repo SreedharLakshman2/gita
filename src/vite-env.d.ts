@@ -7,6 +7,7 @@ interface Window {
       sreeoSpeak?: { postMessage: (message: unknown) => void };
       sreeoStopSpeak?: { postMessage: (message: unknown) => void };
       sreeoNotify?: { postMessage: (message: unknown) => void };
+      sreeoAmbient?: { postMessage: (message: unknown) => void };
     };
   };
 }

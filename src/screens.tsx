@@ -774,6 +774,10 @@ export function Profile() {
             Dark mode
             <input type="checkbox" className="switch" checked={store.dark} onChange={(e) => store.setDark(e.target.checked)} />
           </label>
+          <label className="setting-row">
+            Background music
+            <input type="checkbox" className="switch" checked={store.music} onChange={(e) => store.setMusic(e.target.checked)} />
+          </label>
           <button type="button" onClick={() => store.openVerse(store.chapter, store.verse, "audio")}>
             Audio settings <span>{store.speed}x · on device</span>
           </button>
@@ -840,6 +844,13 @@ export function AboutScreen() {
         Recitation uses a voice on this device — your iPhone Personal Voice if you create one, or a recording you add
         to the app. Audio is never uploaded.
       </p>
+      <p>
+        Quiet temple music under the reading is “Dhaka” by Kevin MacLeod (incompetech.com), licensed under{" "}
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">
+          CC BY 4.0
+        </a>
+        . Turn it off in Profile.
+      </p>
       <a className="text-link" href={Brand.support} target="_blank" rel="noreferrer">
         Support
       </a>
@@ -851,7 +862,7 @@ export function PrivacyScreen() {
   return (
     <InfoPage title="Privacy">
       <h1 className="display sm">Privacy Policy</h1>
-      <p className="meta-line">Last updated: 9 September 2026</p>
+      <p className="meta-line">Last updated: 10 September 2026</p>
       <p>
         Reading language, bookmarks, and progress stay on your device. There is no account and no cloud library in this
         version.
@@ -867,7 +878,8 @@ export function PrivacyScreen() {
       <h2>Audio</h2>
       <p>
         Recitation uses on-device speech. If you create a Personal Voice on iPhone, or add your own recordings, those
-        are used first. Audio is not uploaded. You can stop playback at any time.
+        are used first. Soft background music may play from a file bundled in the app. Audio is not uploaded. You can
+        stop recitation and turn music off in Profile at any time.
       </p>
       <h2>Notifications</h2>
       <p>Reminders are scheduled on this device only. You can turn them off in Profile.</p>

@@ -8,9 +8,11 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
 
     private let speaker = AVSpeechSynthesizer()
     private var clipPlayer: AVAudioPlayer?
+    private var ambientPlayer: AVAudioPlayer?
     private var askedPersonalVoice = false
     private var utteranceId = 0
     private var currentUtterance: AVSpeechUtterance?
+    private var ambientWanted = false
 
     private override init() {
         super.init()
@@ -49,6 +51,35 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
         utterance.volume = 1
         currentUtterance = utterance
         speaker.speak(utterance)
+    }
+
+    func setAmbient(enabled: Bool, ducked: Bool) {
+        ambientWanted = enabled
+        if enabled == false {
+            ambientPlayer?.setVolume(0, fadeDuration: 0.35)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                guard self?.ambientWanted == false else { return }
+                self?.ambientPlayer?.pause()
+            }
+            return
+        }
+        activateSession()
+        if ambientPlayer == nil {
+            guard let url = ambientURL() else { return }
+            do {
+                let player = try AVAudioPlayer(contentsOf: url)
+                player.numberOfLoops = -1
+                player.volume = 0
+                player.prepareToPlay()
+                ambientPlayer = player
+            } catch {
+                ambientPlayer = nil
+                return
+            }
+        }
+        ambientPlayer?.play()
+        let level: Float = ducked ? 0.045 : 0.16
+        ambientPlayer?.setVolume(level, fadeDuration: 0.45)
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
@@ -109,9 +140,19 @@ final class DivineVoice: NSObject, AVSpeechSynthesizerDelegate, AVAudioPlayerDel
         return nil
     }
 
+    private func ambientURL() -> URL? {
+        guard let www = Bundle.main.resourceURL?.appendingPathComponent("www/music/dhaka.mp3") else {
+            return nil
+        }
+        if FileManager.default.fileExists(atPath: www.path) {
+            return www
+        }
+        return nil
+    }
+
     private func activateSession() {
         let session = AVAudioSession.sharedInstance()
-        try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        try? session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
         try? session.setActive(true, options: [])
     }
 

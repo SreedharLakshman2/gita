@@ -47,6 +47,7 @@ struct WebAppView: UIViewRepresentable {
         config.userContentController.add(context.coordinator, name: "sreeoSpeak")
         config.userContentController.add(context.coordinator, name: "sreeoStopSpeak")
         config.userContentController.add(context.coordinator, name: "sreeoNotify")
+        config.userContentController.add(context.coordinator, name: "sreeoAmbient")
 
         let webView = GitaWebView(frame: .zero, configuration: config)
         context.coordinator.webView = webView
@@ -91,6 +92,10 @@ struct WebAppView: UIViewRepresentable {
                 handleNotify(message.body)
                 return
             }
+            if message.name == "sreeoAmbient" {
+                handleAmbient(message.body)
+                return
+            }
             guard message.name == "sreeoSpeak" else { return }
             let text: String
             var rate: Float = 1
@@ -131,6 +136,13 @@ struct WebAppView: UIViewRepresentable {
             let hour = payload["hour"] as? Int ?? 7
             let minute = payload["minute"] as? Int ?? 0
             VerseNotifications.shared.sync(enabled: enabled, title: title, body: bodyText, hour: hour, minute: minute)
+        }
+
+        private func handleAmbient(_ body: Any) {
+            guard let payload = body as? [String: Any] else { return }
+            let enabled = payload["enabled"] as? Bool ?? false
+            let ducked = payload["ducked"] as? Bool ?? false
+            DivineVoice.shared.setAmbient(enabled: enabled, ducked: ducked)
         }
 
         func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
@@ -253,6 +265,9 @@ struct WebAppView: UIViewRepresentable {
             case "woff2": return "font/woff2"
             case "woff": return "font/woff"
             case "ttf": return "font/ttf"
+            case "mp3": return "audio/mpeg"
+            case "m4a": return "audio/mp4"
+            case "wav": return "audio/wav"
             default: return "application/octet-stream"
             }
         }
