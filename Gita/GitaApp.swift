@@ -54,6 +54,19 @@ enum StoreLaunch {
                 fields.append("tab:\"\(tab)\"")
             }
             launch = "window.__GITA_LAUNCH__ = {\(fields.joined(separator: ","))};"
+        } else if UITest.isActive {
+            var fields = ["screen:\"\(UITest.screen)\""]
+            switch UITest.screen {
+            case "verse", "audio":
+                fields.append("chapter:2")
+                fields.append("verse:47")
+            default:
+                break
+            }
+            if let tab = tab(for: UITest.screen) {
+                fields.append("tab:\"\(tab)\"")
+            }
+            launch = "window.__GITA_UITEST__ = {\(fields.joined(separator: ","))};"
         }
         return """
         window.__GITA_NATIVE__ = true;
@@ -62,6 +75,21 @@ enum StoreLaunch {
         document.documentElement.style.colorScheme = "dark";
         \(launch)
         """
+    }
+
+    enum UITest {
+        static var isActive: Bool {
+            ProcessInfo.processInfo.arguments.contains("-uiTest")
+        }
+
+        static var screen: String {
+            let args = ProcessInfo.processInfo.arguments
+            guard let index = args.firstIndex(of: "-uiTest"), args.indices.contains(index + 1) else {
+                return "home"
+            }
+            let next = args[index + 1]
+            return next.hasPrefix("-") ? "home" : next
+        }
     }
 
     private static func tab(for scene: String) -> String? {

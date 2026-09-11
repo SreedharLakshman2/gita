@@ -6,6 +6,7 @@ final class VerseNotifications {
     private let identifier = "gita.daily.verse"
 
     func sync(enabled: Bool, title: String, body: String, hour: Int = 7, minute: Int = 0) {
+        if StoreLaunch.UITest.isActive { return }
         let center = UNUserNotificationCenter.current()
         if enabled == false {
             center.removePendingNotificationRequests(withIdentifiers: [identifier])

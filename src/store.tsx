@@ -138,7 +138,9 @@ export function StoreProvider({
   const [tab, setTabState] = useState<TabId>(start.tab ?? "home");
   const [lang, setLangState] = useState<LangId>(start.lang ?? saved.lang ?? "en");
   const [dark, setDarkState] = useState(() => resolveDark(start, saved, locked));
-  const [onboarded, setOnboarded] = useState(saved.onboarded ?? false);
+  const [onboarded, setOnboarded] = useState(
+    saved.onboarded ?? Boolean(typeof window !== "undefined" && window.__GITA_UITEST__)
+  );
   const [chapter, setChapter] = useState(start.chapter ?? saved.chapter ?? 2);
   const [verse, setVerse] = useState(start.verse ?? saved.verse ?? 47);
   const [readerLang, setReaderLangState] = useState<LangId>(start.lang ?? saved.readerLang ?? saved.lang ?? "sa");
@@ -157,7 +159,10 @@ export function StoreProvider({
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [search, setSearch] = useState(start.screen === "search" ? "Dharma" : "");
-  const [notify, setNotifyState] = useState(saved.notify ?? true);
+  const [notify, setNotifyState] = useState(() => {
+    if (typeof window !== "undefined" && window.__GITA_UITEST__) return false;
+    return saved.notify ?? false;
+  });
   const [music, setMusicState] = useState(saved.music ?? true);
   const [download] = useState(false);
   const [versesRead] = useState(saved.versesRead ?? 42);

@@ -18,5 +18,12 @@ interface Window {
     verse?: number;
     tab?: string;
   };
+  __GITA_UITEST__?: {
+    screen?: string;
+    lang?: string;
+    chapter?: number;
+    verse?: number;
+    tab?: string;
+  };
 }
 

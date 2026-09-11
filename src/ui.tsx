@@ -113,9 +113,9 @@ export function AppShell({
 }) {
   const { dark } = useStore();
   useLayoutEffect(() => {
-    reportTabBarVisible(nav);
-    return () => reportTabBarVisible(false);
-  }, [nav]);
+    reportTabBarVisible(nav, dark);
+    return () => reportTabBarVisible(false, dark);
+  }, [nav, dark]);
   return (
     <div className={`app-shell ${parchment ? "parchment" : ""}`} data-theme={dark ? "dark" : "light"}>
       <StatusBar />

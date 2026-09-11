@@ -1,6 +1,10 @@
 import Foundation
 
 enum AdConfig {
+    /// Compact standard banner. Adaptive/full-width banners grow too tall and cover the tab bar.
+    static let bannerWidth: CGFloat = 320
+    static let bannerHeight: CGFloat = 50
+
     static let testBannerUnit = "ca-app-pub-3940256099942544/2934735716"
 
     /// Gita iOS app in AdMob (`com.sreeo.gita`). Must match `GADApplicationIdentifier` in Info.plist.

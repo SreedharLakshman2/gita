@@ -2224,7 +2224,8 @@ html.native .app-shell {
 }
 
 html.native .ad-slot {
-  height: var(--ad-banner-h, 0px);
+  height: min(50px, var(--ad-banner-h, 0px));
+  max-height: 50px;
 }
 
 html.native .tabbar {

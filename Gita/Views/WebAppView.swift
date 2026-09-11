@@ -136,6 +136,7 @@ struct WebAppView: UIViewRepresentable {
         }
 
         private func handleNotify(_ body: Any) {
+            if StoreLaunch.UITest.isActive { return }
             guard let payload = body as? [String: Any] else { return }
             let enabled = payload["enabled"] as? Bool ?? false
             let title = (payload["title"] as? String) ?? "A verse from the Gita"
@@ -152,15 +153,19 @@ struct WebAppView: UIViewRepresentable {
 
         private func handleAds(_ body: Any) {
             let visible: Bool
+            var dark: Bool?
             if let payload = body as? [String: Any] {
                 visible = flag(payload["visible"])
+                if payload["dark"] != nil {
+                    dark = flag(payload["dark"])
+                }
             } else if let flag = body as? Bool {
                 visible = flag
             } else {
                 return
             }
             DispatchQueue.main.async {
-                AdsManager.shared.setTabBarVisible(visible)
+                AdsManager.shared.setTabBarVisible(visible, dark: dark)
             }
         }
 
@@ -226,7 +231,7 @@ struct WebAppView: UIViewRepresentable {
         }
 
         static func applyAdHeight(_ webView: WKWebView, height: CGFloat) {
-            let value = max(height, 0)
+            let value = min(max(height, 0), AdConfig.bannerHeight)
             let js = """
             document.documentElement.style.setProperty('--ad-banner-h', '\(value)px');
             document.documentElement.classList.toggle('has-ad-banner', \(value > 0 ? "true" : "false"));

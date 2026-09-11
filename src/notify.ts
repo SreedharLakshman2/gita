@@ -1,5 +1,6 @@
 import { meaning, verseOfTheDay } from "./data";
 import type { LangId } from "./brand";
+import { isNative } from "./native";
 
 let webTimer: number | undefined;
 
@@ -33,10 +34,10 @@ function scheduleWeb(title: string, body: string, hour: number, minute: number) 
 }
 
 export async function syncVerseReminder(enabled: boolean, lang: LangId = "en") {
+  if (typeof window !== "undefined" && window.__GITA_UITEST__) return;
   const copy = reminderCopy(lang);
-  const native = typeof window !== "undefined" ? window.webkit?.messageHandlers?.sreeoNotify : undefined;
-  if (native) {
-    native.postMessage({ enabled, ...copy });
+  if (isNative()) {
+    window.webkit?.messageHandlers?.sreeoNotify?.postMessage({ enabled, ...copy });
     return;
   }
   if (typeof window === "undefined") return;

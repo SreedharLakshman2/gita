@@ -22,18 +22,34 @@ function launchFromQuery(): Freeze | undefined {
   };
 }
 
+function uiTestSeed(): Freeze | undefined {
+  if (typeof window === "undefined") return undefined;
+  const seeded = window.__GITA_UITEST__;
+  const screen = seeded?.screen as ScreenId | undefined;
+  if (!screen) return undefined;
+  return {
+    screen,
+    dark: true,
+    lang: "en",
+    chapter: Number(seeded?.chapter || 2) || 2,
+    verse: Number(seeded?.verse || 47) || 47,
+    tab: (seeded?.tab as TabId) || undefined,
+  };
+}
+
 export default function App() {
   const native = isNative();
   const launch = useMemo(() => launchFromQuery(), []);
+  const uitest = useMemo(() => uiTestSeed(), []);
   const [narrow, setNarrow] = useState(() =>
     native || (typeof window !== "undefined" && window.matchMedia("(max-width: 780px)").matches)
   );
   const [mode, setMode] = useState<"board" | "app">(() =>
-    native || launch || (typeof window !== "undefined" && window.matchMedia("(max-width: 780px)").matches)
+    native || launch || uitest || (typeof window !== "undefined" && window.matchMedia("(max-width: 780px)").matches)
       ? "app"
       : "board"
   );
-  const [initial, setInitial] = useState<Freeze | undefined>(launch);
+  const [initial, setInitial] = useState<Freeze | undefined>(launch ?? uitest);
 
   useEffect(() => {
     if (native) {
