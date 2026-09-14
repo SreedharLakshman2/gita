@@ -31,6 +31,12 @@ if (!rootView.includes(".clipped()")) fail("RootView banner must be clipped");
 if (rootView.includes("geo.size.width")) fail("RootView must not size ads to the full screen width");
 
 const css = read("src/styles.css");
+const audioLine = css.match(/\.audio-line \{[\s\S]*?\n\}/);
+if (!audioLine) fail("missing .audio-line");
+if (audioLine[0].includes("line-clamp") || audioLine[0].includes("ellipsis")) {
+  fail("audio-line must show the full verse, not clamp with an ellipsis");
+}
+
 const slot = css.match(/html\.native \.ad-slot \{[\s\S]*?\}/);
 if (!slot) fail("missing html.native .ad-slot rule");
 if (!slot[0].includes("max-height: 50px")) fail("native ad-slot must cap height at 50px");
@@ -74,6 +80,12 @@ if (!notify.includes("isNative()")) {
 const store = read("src/store.tsx");
 if (!store.includes("saved.notify ?? false")) {
   fail("notifications must default off so first launch does not cover Home with a permission alert");
+}
+
+const readerBarBtn = css.match(/\.page\.reader \.reader-bar \.icon-btn \{[\s\S]*?\n\}/);
+if (!readerBarBtn) fail("missing .page.reader .reader-bar .icon-btn");
+if (!/width:\s*(6[4-9]|[7-9]\d)px/.test(readerBarBtn[0])) {
+  fail("reader play/save/nav buttons must be at least 64px");
 }
 
 const verseNotify = read("Gita/Services/VerseNotifications.swift");

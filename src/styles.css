@@ -1464,6 +1464,37 @@ h2 {
 
 .page.reader .reader-bar {
   margin-top: auto;
+  padding: 16px 4px 10px;
+  gap: 10px;
+}
+
+.page.reader .reader-bar .icon-btn {
+  width: 68px;
+  height: 68px;
+  border-radius: 34px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--navy);
+}
+
+.page.reader .reader-bar .icon-btn svg {
+  width: 32px;
+  height: 32px;
+}
+
+.page.reader .reader-bar .icon-btn.active {
+  background: rgba(196, 122, 44, 0.16);
+  border-color: var(--gold-bright);
+}
+
+.page.reader .reader-top .icon-btn {
+  width: 52px;
+  height: 52px;
+}
+
+.page.reader .reader-top .icon-btn svg {
+  width: 26px;
+  height: 26px;
 }
 
 .leaf {
@@ -1531,7 +1562,7 @@ h2 {
 }
 
 .spacer {
-  width: 44px;
+  width: 52px;
 }
 
 .daily {
@@ -1685,13 +1716,8 @@ h2 {
   text-align: center;
   font-family: var(--serif);
   font-size: 18px;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--navy);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  line-clamp: 3;
-  overflow: hidden;
 }
 
 .audio-line.ta {
@@ -1862,6 +1888,12 @@ h2 {
 }
 
 .app-shell[data-theme="dark"] .audio-ctrls .icon-btn {
+  color: #ead6a4;
+  background: #1c2230;
+  border-color: rgba(212, 181, 106, 0.4);
+}
+
+.app-shell[data-theme="dark"] .page.reader .reader-bar .icon-btn {
   color: #ead6a4;
   background: #1c2230;
   border-color: rgba(212, 181, 106, 0.4);
