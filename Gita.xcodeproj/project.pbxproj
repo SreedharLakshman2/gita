@@ -17,10 +17,10 @@
 		GTBF00080000000000000000 /* AdConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00080000000000000000 /* AdConfig.swift */; };
 		GTBF00090000000000000000 /* AdsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00090000000000000000 /* AdsManager.swift */; };
 		GTBF00100000000000000000 /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GTFR00100000000000000000 /* BannerAdView.swift */; };
-		GTBFAADS00000000000001 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = GTPRDADS00000000000001 /* GoogleMobileAds */; };
 		GTBF02000000000000000000 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = GTFR02000000000000000000 /* Assets.xcassets */; };
 		GTBF02010000000000000000 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = GTFR02010000000000000000 /* PrivacyInfo.xcprivacy */; };
 		GTBF03000000000000000000 /* www in Resources */ = {isa = PBXBuildFile; fileRef = GTFR03000000000000000000 /* www */; };
+		GTBFAADS00000000000001 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = GTPRDADS00000000000001 /* GoogleMobileAds */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -275,7 +275,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sreeo.gita;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -308,7 +308,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sreeo.gita;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
