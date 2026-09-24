@@ -1,4 +1,4 @@
-import type { LangId } from "./brand";
+import { LANGUAGES, type LangId } from "./brand";
 import versesJson from "./verses.json";
 
 export type Motif = "lotus" | "chariot" | "flute" | "conch" | "wheel" | "tree" | "lamp" | "peacock";
@@ -227,7 +227,7 @@ export const CHAPTERS: Chapter[] = [
     en: "Liberation and Renunciation",
     enTitle: "Moksha Sannyasa Yoga",
     verses: 78,
-    description: "Leave every lesser refuge. Come to this one. Where Krishna and Arjuna stand, there is victory.",
+    description: "Abandoning all dharmas, take refuge in the Lord. Where Krishna and Arjuna stand, there is victory.",
     accent: "#1C2740",
     motif: "chariot",
   },
@@ -264,6 +264,15 @@ function verseText(verse: Verse, lang: LangId): string {
   };
   return (map[lang] || "").trim();
 }
+
+export function hasMeaning(verse: Verse, lang: LangId): boolean {
+  return Boolean(verseText(verse, lang));
+}
+
+/** Languages the reader may offer — only those with a complete 701-verse meaning. */
+export const READING_LANGUAGES = LANGUAGES.filter(
+  (item) => item.id === "sa" || VERSES.every((verse) => hasMeaning(verse, item.id))
+);
 
 export function meaning(verse: Verse, lang: LangId): string {
   return verseText(verse, lang) || verse.en;

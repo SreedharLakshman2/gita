@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Brand, LANGUAGES, type LangId } from "./brand";
-import { CONTINUE_KEY, DAILY_KEY, VERSES, verseAt, verseOfTheDay, type Verse } from "./data";
+import { CONTINUE_KEY, DAILY_KEY, READING_LANGUAGES, VERSES, verseAt, verseOfTheDay, type Verse } from "./data";
 import { isNative } from "./native";
 import { syncVerseReminder } from "./notify";
 import { setAmbientDucked, setAmbientEnabled } from "./music";
@@ -120,6 +120,10 @@ function resolveDark(start: Seed, saved: Partial<Persist>, locked: boolean): boo
   return saved.dark ?? true;
 }
 
+function isReadingLang(id: LangId | undefined): id is LangId {
+  return Boolean(id && READING_LANGUAGES.some((item) => item.id === id));
+}
+
 const Ctx = createContext<Store | null>(null);
 
 export function StoreProvider({
@@ -136,7 +140,9 @@ export function StoreProvider({
   const locked = Boolean(freeze);
   const [screen, setScreen] = useState<ScreenId>(start.screen ?? (isNative() ? "splash" : "sreeo"));
   const [tab, setTabState] = useState<TabId>(start.tab ?? "home");
-  const [lang, setLangState] = useState<LangId>(start.lang ?? saved.lang ?? "en");
+  const [lang, setLangState] = useState<LangId>(
+    isReadingLang(start.lang) ? start.lang : isReadingLang(saved.lang) ? saved.lang : "en"
+  );
   const [dark, setDarkState] = useState(() => resolveDark(start, saved, locked));
   const [onboarded, setOnboarded] = useState(
     saved.onboarded ?? Boolean(typeof window !== "undefined" && window.__GITA_UITEST__)
@@ -228,7 +234,7 @@ export function StoreProvider({
 
   const openVerse = (c: number, v: number, next: ScreenId = "verse", opts?: { play?: boolean; lang?: LangId }) => {
     if (locked) return;
-    if (opts?.lang) {
+    if (opts?.lang && isReadingLang(opts.lang)) {
       setLangState(opts.lang);
       setReaderLangState(opts.lang);
     } else if (next === "audio" && (screen === "verse" || screen === "audio")) {
@@ -328,7 +334,7 @@ export function StoreProvider({
     go,
     setTab,
     setLang: (id) => {
-      if (locked) return;
+      if (locked || !isReadingLang(id)) return;
       setLangState(id);
       setReaderLangState(id);
     },

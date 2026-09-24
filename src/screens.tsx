@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Brand, LANGUAGES, READER_TABS } from "./brand";
+import { Brand, READER_TABS } from "./brand";
 import {
   CHAPTERS,
   SEARCH_CHIPS,
@@ -8,6 +8,7 @@ import {
   meaning,
   nextVerse,
   prevVerse,
+  READING_LANGUAGES,
   searchVerses,
   spokenVerse,
   verseAt,
@@ -132,7 +133,7 @@ export function Onboarding() {
         <p className="lede">Read, listen and reflect on the timeless teachings of Lord Krishna.</p>
         <p className="section-label">Choose a language to begin</p>
         <div className="lang-row">
-          {LANGUAGES.map((l) => (
+          {READING_LANGUAGES.map((l) => (
             <button
               key={l.id}
               type="button"
@@ -452,7 +453,7 @@ export function LanguageScreen() {
           <p className="lede">Original Sanskrit is always available.</p>
         </header>
         <div className="lang-grid">
-          {LANGUAGES.map((l) => (
+          {READING_LANGUAGES.map((l) => (
             <button
               key={l.id}
               type="button"

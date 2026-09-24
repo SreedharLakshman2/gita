@@ -1,7 +1,8 @@
 import { useLayoutEffect, type ReactNode } from "react";
 import { reportTabBarVisible } from "./ads";
 import { SacredMark } from "./art";
-import { Brand, LANGUAGES, type LangId } from "./brand";
+import { Brand, type LangId } from "./brand";
+import { READING_LANGUAGES } from "./data";
 import { Glyph } from "./icons";
 import { useStore, type TabId } from "./store";
 
@@ -138,7 +139,7 @@ export function LangPicker({
     <div className="lang-select">
       <span>Language</span>
       <div className="lang-pick" role="listbox" aria-label="Language">
-        {LANGUAGES.map((item) => (
+        {READING_LANGUAGES.map((item) => (
           <button
             key={item.id}
             type="button"

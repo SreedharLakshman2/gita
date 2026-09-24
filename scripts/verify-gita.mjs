@@ -73,9 +73,8 @@ for (const verse of verses) {
 }
 
 const featured = verses.find((v) => v.chapter === 2 && v.verse === 47);
-for (const lang of ["ta", "te", "kn", "ml", "bn", "mr", "gu"]) {
-  if (!featured?.[lang]) fail(`2.47 missing ${lang}`);
-}
+if (!featured?.ta) fail("2.47 missing Tamil");
+if (!featured?.hi) fail("2.47 missing Hindi");
 
 if (!process.exitCode) {
   console.log(`OK ${verses.length} verses, Hindi ${hindi}, search 2:33 ready`);
