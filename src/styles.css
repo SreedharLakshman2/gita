@@ -1239,6 +1239,13 @@ p {
 .meaning.ta,
 .ta {
   font-family: var(--tamil);
+  font-size: 1.12em;
+  line-height: 1.7;
+}
+
+.meaning.hero-mean.ta {
+  font-size: 26px;
+  line-height: 1.7;
 }
 
 .deva {
@@ -1452,9 +1459,9 @@ h2 {
   font-size: 13px;
   color: var(--ink);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
-  line-clamp: 2;
+  line-clamp: 4;
   overflow: hidden;
 }
 
@@ -1722,7 +1729,8 @@ h2 {
 
 .audio-line.ta {
   font-family: var(--tamil);
-  font-size: 16px;
+  font-size: 22px;
+  line-height: 1.7;
 }
 
 .audio-line.deva {
@@ -2329,6 +2337,12 @@ html.native .splash-foot {
   html.native .sa-hero {
     font-size: 28px;
     line-height: 1.45;
+  }
+
+  html.native .meaning.hero-mean.ta,
+  html.native .audio-line.ta {
+    font-size: 30px;
+    line-height: 1.7;
   }
 
   html.native .audio-stage {

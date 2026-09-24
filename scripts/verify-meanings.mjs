@@ -72,6 +72,12 @@ for (const item of verses) {
   }
   if (String(item.hi).trim().length < 40) fail(`${item.chapter}.${item.verse} Hindi is truncated`);
   if (String(item.ta).trim().length < 40) fail(`${item.chapter}.${item.verse} Tamil is truncated`);
+  const ta = String(item.ta).trim();
+  if (/[,،]$/.test(ta)) fail(`${item.chapter}.${item.verse} Tamil is cut off at a comma`);
+  if (/—$/.test(ta)) fail(`${item.chapter}.${item.verse} Tamil is cut off at a dash`);
+  if (/\b(eyrow|tranil|iescence|estion)\b/i.test(item.en) || /supreme gaol/i.test(item.en)) {
+    fail(`${item.chapter}.${item.verse} English still has OCR damage`);
+  }
 }
 
 const famous = {
@@ -162,6 +168,16 @@ if (famous["18.66"] && verse(18, 66).en.includes("lesser")) {
   fail("18.66 must not soften ‘all dharmas’ into ‘lesser dharmas’");
 }
 
+const ta18_62 = verse(18, 62).ta;
+if (ta18_62.includes("பாவத்திலும்")) fail("18.62 Tamil must not read ‘all sins’ for sarva-bhāvena");
+if (!ta18_62.includes("உள்ளத்து")) fail("18.62 Tamil must keep ‘with all your being’");
+for (const [ch, vs] of [[4, 10], [13, 19], [14, 19]]) {
+  const ta = verse(ch, vs).ta;
+  if (ta.includes("என் பாவத்தை")) fail(`${ch}.${vs} Tamil must not use ‘sin’ for the Lord’s being`);
+  if (!ta.includes("தன்மையை")) fail(`${ch}.${vs} Tamil must keep ‘My being’`);
+}
+if (verse(18, 21).ta.includes("பாவத்தை")) fail("18.21 Tamil must not read nānā-bhāvān as sins");
+
 const extra = ["te", "kn", "ml", "bn", "mr", "gu"];
 for (const lang of extra) {
   const filled = verses.filter((item) => String(item[lang] || "").trim()).length;
@@ -181,6 +197,7 @@ const ui = readFileSync(join(root, "src/ui.tsx"), "utf8");
 const screens = readFileSync(join(root, "src/screens.tsx"), "utf8");
 if (!ui.includes("READING_LANGUAGES")) fail("reader language picker must use READING_LANGUAGES");
 if (!screens.includes("READING_LANGUAGES")) fail("settings language picker must use READING_LANGUAGES");
+if (screens.includes("dailyVerse.sa.split")) fail("daily card must show the full Sanskrit verse, not only the first line");
 
 if (!process.exitCode) {
   console.log("OK meanings: 701 verses, core languages complete, famous verses keep traditional sense");

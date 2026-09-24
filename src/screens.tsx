@@ -198,7 +198,7 @@ export function Home() {
             <div className="card-meta">
               Chapter {dailyVerse.chapter} · Verse {dailyVerse.verse}
             </div>
-            <p className="sa-line">{dailyVerse.sa.split("\n")[0]}</p>
+            <p className="sa-line">{dailyVerse.sa}</p>
             <p className="mean-line">{meaning(dailyVerse, lang === "sa" ? "en" : lang)}</p>
           </button>
           <div className="row-btns">
